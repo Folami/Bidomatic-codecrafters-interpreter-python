@@ -84,6 +84,8 @@ class Scanner:
                 self.index += 1
         
         content = "".join(number_content)
+        if '.' not in content:
+            content += '.0'
         print(f'NUMBER {content} {content}')
         return True
 
