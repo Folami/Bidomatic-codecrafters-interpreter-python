@@ -87,14 +87,13 @@ class Scanner:
         
         content = "".join(number_content)
         
-        if not is_float:
-            print(f'NUMBER {content} {content}.0')
+        if is_float:
+            # Remove trailing zeros from the second part of the output
+            formatted_content = content.rstrip('0').rstrip('.') if '.' in content else content
+            print(f'NUMBER {content} {formatted_content}')
         else:
-            if content.endswith(".0") and len(content)>2 and all(char.isdigit() for char in content[:-2]):
-                print(f'NUMBER {content} {content[:-2]}.0')
-
-            else:
-                print(f'NUMBER {content} {content}')
+            print(f'NUMBER {content} {content}.0')
+        
         return True
 
     def _handle_whitespace(self, c: str) -> bool:
