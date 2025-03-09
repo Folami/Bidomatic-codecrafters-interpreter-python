@@ -86,10 +86,15 @@ class Scanner:
                 self.index += 1
         
         content = "".join(number_content)
+        
         if not is_float:
             print(f'NUMBER {content} {content}.0')
         else:
-            print(f'NUMBER {content} {content}')
+            if content.endswith(".0") and len(content)>2 and all(char.isdigit() for char in content[:-2]):
+                print(f'NUMBER {content} {content[:-2]}.0')
+
+            else:
+                print(f'NUMBER {content} {content}')
         return True
 
     def _handle_whitespace(self, c: str) -> bool:
@@ -209,4 +214,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
