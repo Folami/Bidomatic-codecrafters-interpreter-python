@@ -96,6 +96,7 @@ class Scanner:
         
         return True
 
+
     def _handle_whitespace(self, c: str) -> bool:
         """Handle whitespace characters including newlines"""
         if c == '\n':
@@ -213,3 +214,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
