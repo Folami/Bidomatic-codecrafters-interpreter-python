@@ -56,7 +56,8 @@ class Scanner:
             print(f"[line {self.line}] Error: Unterminated string.", file=sys.stderr)
             self.has_error = True
         else:
-            print(f'STRING "{"".join(string_content)}" null')
+            content = "".join(string_content)
+            print(f'STRING "{content}" {content}')
             self.index += 1  # Skip closing quote
             
         return True
