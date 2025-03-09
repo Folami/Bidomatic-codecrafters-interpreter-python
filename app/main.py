@@ -22,6 +22,9 @@ class Scanner:
             if self._handle_string_literal(c):
                 continue
                 
+            if self._handle_number_literal(c):
+                continue
+                
             if self._handle_basic_tokens(c):
                 continue
                 
@@ -60,6 +63,28 @@ class Scanner:
             print(f'STRING "{content}" {content}')
             self.index += 1  # Skip closing quote
             
+        return True
+
+    def _handle_number_literal(self, c: str) -> bool:
+        """Handle number literals"""
+        if not c.isdigit():
+            return False
+        
+        number_content = []
+        while self.index < len(self.source) and self.source[self.index].isdigit():
+            number_content.append(self.source[self.index])
+            self.index += 1
+        
+        # Handle fractional part
+        if self.index < len(self.source) and self.source[self.index] == '.':
+            number_content.append('.')
+            self.index += 1
+            while self.index < len(self.source) and self.source[self.index].isdigit():
+                number_content.append(self.source[self.index])
+                self.index += 1
+        
+        content = "".join(number_content)
+        print(f'NUMBER {content} {content}')
         return True
 
     def _handle_whitespace(self, c: str) -> bool:
