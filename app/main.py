@@ -12,7 +12,8 @@ def handle_single_char_token(c):
         '-': 'MINUS',
         '+': 'PLUS',
         ';': 'SEMICOLON',
-        '*': 'STAR'
+        '*': 'STAR',
+        '/': 'SLASH'  # Add division operator to single char tokens
     }
     if c in tokens:
         print(f"{tokens[c]} {c} null")
@@ -141,24 +142,7 @@ if __name__ == "__main__":
 import sys
 
 
-def handle_single_char_token(c):
-    tokens = {
-        '(': 'LEFT_PAREN',
-        ')': 'RIGHT_PAREN',
-        '{': 'LEFT_BRACE',
-        '}': 'RIGHT_BRACE',
-        ',': 'COMMA',
-        '.': 'DOT',
-        '-': 'MINUS',
-        '+': 'PLUS',
-        ';': 'SEMICOLON',
-        '*': 'STAR',
-        '/': 'SLASH'  # Add division operator to single char tokens
-    }
-    if c in tokens:
-        print(f"{tokens[c]} {c} null")
-        return True
-    return False
+
 
 
 # ...existing code...
@@ -166,40 +150,8 @@ def handle_single_char_token(c):
 def main():
     # ...existing code...
 
-    while index < len(file_contents):
-        c = file_contents[index]
-        
-        # Handle newlines
-        if c == '\n':
-            line_number += 1
-            index += 1
-            continue
-            
-        # Handle whitespace
-        if c.isspace():
-            index += 1
-            continue
-            
-        # Handle comments and division
-        if c == '/' and index + 1 < len(file_contents):
-            next_char = file_contents[index + 1]
-            if next_char == '/':
-                # Skip until end of line or EOF
-                while index < len(file_contents):
-                    if file_contents[index] == '\n':
-                        break
-                    index += 1
-                continue
-            else:
-                # It's a division operator
-                handle_single_char_token(c)
-                index += 1
-                continue
-        # Handle normal division operator case
-        elif c == '/':
-            handle_single_char_token(c)
-            index += 1
-            continue
+    
                 
         # Rest of the code remains the same...
         # ...existing code...
+
