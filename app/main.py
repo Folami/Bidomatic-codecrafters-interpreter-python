@@ -76,7 +76,9 @@ class Scanner:
             self.index += 1
         
         # Handle fractional part
+        is_float = False
         if self.index < len(self.source) and self.source[self.index] == '.':
+            is_float = True
             number_content.append('.')
             self.index += 1
             while self.index < len(self.source) and self.source[self.index].isdigit():
@@ -84,9 +86,10 @@ class Scanner:
                 self.index += 1
         
         content = "".join(number_content)
-        if '.' not in content:
-            content += '.0'
-        print(f'NUMBER {content} {content}')
+        if not is_float:
+            print(f'NUMBER {content} {content}.0')
+        else:
+            print(f'NUMBER {content} {content}')
         return True
 
     def _handle_whitespace(self, c: str) -> bool:
