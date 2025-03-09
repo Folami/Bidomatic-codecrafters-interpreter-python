@@ -19,6 +19,9 @@ class Scanner:
             if self._handle_comments_and_division(c):
                 continue
                 
+            if self._handle_string_literal(c):
+                continue
+                
             if self._handle_basic_tokens(c):
                 continue
                 
@@ -29,6 +32,34 @@ class Scanner:
 
         print("EOF  null")
         return self.has_error
+
+    def _handle_string_literal(self, c: str) -> bool:
+        """Handle string literals enclosed in double quotes"""
+        if c != '"':
+            return False
+            
+        self.index += 1  # Skip opening quote
+        string_content = []
+        unterminated = True
+        
+        while self.index < len(self.source):
+            ch = self.source[self.index]
+            if ch == '"':
+                unterminated = False
+                break
+            if ch == '\n':
+                self.line += 1
+            string_content.append(ch)
+            self.index += 1
+            
+        if unterminated:
+            print(f"[line {self.line}] Error: Unterminated string.", file=sys.stderr)
+            self.has_error = True
+        else:
+            print(f'STRING "{"".join(string_content)}" null')
+            self.index += 1  # Skip closing quote
+            
+        return True
 
     def _handle_whitespace(self, c: str) -> bool:
         """Handle whitespace characters including newlines"""
@@ -147,3 +178,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
