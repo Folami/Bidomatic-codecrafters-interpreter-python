@@ -90,7 +90,7 @@ class Scanner:
         if is_float:
             # Remove trailing zeros from the second part of the output
             formatted_content = content.rstrip('0') if '.' in content else content
-            print(f'NUMBER {content} {formatted_content}0')
+            print(f'NUMBER {content} {formatted_content}.0')
         else:
             print(f'NUMBER {content} {content}.0')
         
