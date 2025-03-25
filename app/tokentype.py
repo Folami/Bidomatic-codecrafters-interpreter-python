@@ -1,4 +1,3 @@
-Base/Projects/codecrafters-interpreter-python/app/token_type.py
 from enum import Enum
 
 class TokenType(Enum):

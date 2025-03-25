@@ -1,4 +1,4 @@
-from token_type import TokenType
+from tokentype import TokenType
 from token import Token
 
 class Scanner:
