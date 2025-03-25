@@ -5,14 +5,7 @@ class PyLox:
     def __init__(self):
         self.had_error = False
         self.had_runtime_error = False
-
-
-    def run(self, source: str) -> None:
-        scanner = Scanner(source, self)
-        tokens = scanner.scan_tokens()
-
-        for token in tokens:
-            print(token)
+        
 
     def error(self, line: int, message: str) -> None:
         self.report(line, "", message)
@@ -42,7 +35,9 @@ def main():
 
     if command == "tokenize":
         scanner = Scanner(file_contents, lox)
-        scanner.scan_tokens()
+        tokens = scanner.scan_tokens
+        for token in tokens:
+            print(token)
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
 
