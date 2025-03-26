@@ -34,7 +34,7 @@ def main():
 
     if command == "tokenize":
         scanner = Scanner(file_contents, lox)
-        tokens = scanner.scan_tokens
+        tokens = scanner.scan_tokens()
         for token in tokens:
             print(token)
         if lox.had_error:
