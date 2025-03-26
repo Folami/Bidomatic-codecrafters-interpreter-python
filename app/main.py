@@ -37,6 +37,8 @@ def main():
         tokens = scanner.scan_tokens
         for token in tokens:
             print(token)
+        if lox.had_error:
+            exit(65)
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
 
