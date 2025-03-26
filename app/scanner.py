@@ -1,4 +1,5 @@
-
+from app.tokentype import TokenType
+from app.token import Token
 
 class Scanner:
     def __init__(self, source: str, lox):
