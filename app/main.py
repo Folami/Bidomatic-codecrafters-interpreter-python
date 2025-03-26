@@ -29,7 +29,6 @@ def main():
 
     command = sys.argv[1]
     filename = sys.argv[2]
-
     with open(filename) as file:
         file_contents = file.read()
 
