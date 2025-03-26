@@ -41,6 +41,7 @@ def main():
             exit(65)
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
+        
 
 if __name__ == "__main__":
     main()
