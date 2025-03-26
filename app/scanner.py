@@ -69,7 +69,7 @@ class Scanner:
             elif c.isalpha():
                 self.identifier()
             else:
-                self.lox.error(self.line, "Unexpected character.")
+                self.lox.error(self.line, f"Unexpected character: {c}")
 
     def identifier(self):
         while self.peek().isalnum() or self.peek() == '_':
