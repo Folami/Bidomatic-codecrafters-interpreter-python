@@ -70,8 +70,7 @@ class Scanner:
             elif c.isalpha() or c == '_':
                 self.identifier()
             else:
-                # Report the error but do not mark it fatal.
-                print(f"[line {self.line}] Error: Unexpected character: {c}", file=sys.stderr)
+                self.lox.error(self.line, f"Unexpected character: {c}")
 
     def identifier(self):
         while self.peek().isalnum() or self.peek() == '_':
