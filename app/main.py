@@ -1,4 +1,5 @@
 import sys
+from scanner import Scanner
 
 class PyLox:
     def __init__(self):
