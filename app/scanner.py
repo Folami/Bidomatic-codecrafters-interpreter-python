@@ -1,5 +1,4 @@
-from tokentype import TokenType
-from token import Token
+
 
 class Scanner:
     def __init__(self, source: str, lox):
