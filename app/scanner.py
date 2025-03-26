@@ -67,7 +67,7 @@ class Scanner:
         else:
             if c.isdigit():
                 self.number()
-            elif c.isalpha():
+            elif c.isalpha() or c == '_':
                 self.identifier()
             else:
                 # Report the error but do not mark it fatal.
