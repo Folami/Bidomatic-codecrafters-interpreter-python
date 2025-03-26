@@ -6,4 +6,6 @@ class Token:
         self.line = line
 
     def __str__(self):
-        return f"{self.type} {self.lexeme} {self.literal}"
+        # Use self.type.name so that "NUMBER" is printed instead of "TokenType.NUMBER".
+        literal_str = str(self.literal) if self.literal is not None else ""
+        return f"{self.type.name} {self.lexeme} {literal_str}".strip()
