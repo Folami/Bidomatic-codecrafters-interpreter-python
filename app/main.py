@@ -31,7 +31,7 @@ class PyLox:
         self.had_error = True
 
     def runtime_error(self, error) -> None:
-        print(f"{error.message}\n[line {error.token.line}]", file=sys.stderr)
+        print(f"{error}\n[line {error.token.line}]", file=sys.stderr)
         self.had_runtime_error = True
 
 def main():
@@ -73,8 +73,10 @@ def main():
             exit(65)
         try:
             lox.interpreter.interpret(expression)
+            if lox.had_runtime_error:
+                exit(70)
         except RuntimeError as error:
-            print(f"{error}", file=sys.stderr)  # Print the error message
+            lox.runtime_error(error)  # Use PyLox's runtime_error method
             exit(70)  # Exit with code 70 for runtime errors
     
     else:
