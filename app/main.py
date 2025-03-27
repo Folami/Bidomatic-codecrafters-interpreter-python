@@ -25,6 +25,7 @@ class PyLox:
     def runParser(self, source: str):
         tokens = self.runScanner(source)
         parser = Parser(tokens, self)
+        expression = parser.parse()  # Assign the result of parser.parse() to expression
         print(AstPrinter().print(expression))
         # Placeholder for the parser's output
         return expression
