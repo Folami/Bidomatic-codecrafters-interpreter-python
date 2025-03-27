@@ -2,7 +2,7 @@ from app.expr import Visitor
 from app.runtime_error import RuntimeError
 
 
-class Interpreter(Visitor, lox):
+class Interpreter(Visitor):
     def interpret(self, expr):
         try:
             value = self.evaluate(expr)
