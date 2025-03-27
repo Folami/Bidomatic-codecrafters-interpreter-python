@@ -129,7 +129,7 @@ class Parser:
     
     def error(self, token, message):
         self.lox.error(token.line, message)
-        return ParserError()
+        return self.ParserError()
     
     def synchronize(self):
         self.advance()
