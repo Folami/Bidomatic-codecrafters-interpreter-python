@@ -128,7 +128,7 @@ class Parser:
         return self.tokens[self.current - 1]
     
     def error(self, token, message):
-        lox.error(token.line, message)
+        self.lox.error(token.line, message)
         return ParserError()
     
     def synchronize(self):
