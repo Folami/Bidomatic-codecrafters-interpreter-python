@@ -68,10 +68,13 @@ def main():
             exit(65)
         parser = Parser(tokens, lox)
         expression = parser.parse()
-        
         if lox.had_error:
             exit(65)
-        lox.interpreter.interpret(expression)  # Removed extra print here.
+        try:
+            lox.interpreter.interpret(expression)
+        except RuntimeError as error:
+            lox.runtime_error(error)
+            exit(70)
     
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
