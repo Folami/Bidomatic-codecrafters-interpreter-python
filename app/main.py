@@ -38,12 +38,8 @@ class PyLox:
         expression = parser.parse()
         if self.had_error:
             exit(65)
-        try:
-            self.interpreter.interpret(expression)
-        except RuntimeError as error:
-            self.runtime_error(error)
-            # Remove the raise error statement
-            # raise error
+        # Let the RuntimeError propagate so main() can catch it.
+        self.interpreter.interpret(expression)
 
 
     def error(self, token_or_line, message) -> None:
