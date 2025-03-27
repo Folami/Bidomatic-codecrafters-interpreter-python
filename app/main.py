@@ -78,7 +78,6 @@ def main():
             print(token)
         if lox.had_error:
             exit(65)
-        print("EOF  null")
     elif command == "parse":
         expression = lox.runParser(file_contents)
         if lox.had_error:
