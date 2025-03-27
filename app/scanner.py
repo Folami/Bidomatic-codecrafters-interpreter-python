@@ -1,5 +1,5 @@
 import sys
-from app.tokentype import TokenType
+from app.token_type import TokenType
 from app.token import Token
 
 class Scanner:

@@ -1,6 +1,7 @@
 import sys
 from app.scanner import Scanner
 from app.parser import Parser
+from app.ast_printer import AstPrinter
 
 class PyLox:
     def __init__(self):
