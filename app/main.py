@@ -9,6 +9,7 @@ from app.interpreter import Interpreter
 class PyLox:
     # A static interpreter reused across calls.
     interpreter = Interpreter()
+    # A static instance of the PyLox class.
 
     def __init__(self):
         self.had_error = False

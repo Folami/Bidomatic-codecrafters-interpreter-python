@@ -3,12 +3,14 @@ from app.runtime_error import RuntimeError
 from app.token_type import TokenType  # if needed
 
 class Interpreter(Visitor):
+    
     def interpret(self, expr):
         try:
             value = self.evaluate(expr)
             print(self.stringify(value))
         except RuntimeError as error:
-            self.lox.runtime_error(error)        
+            # Let the error propagate so that main.py can handle it.
+            raise error        
 
     def visit_literal_expr(self, expr):
         return expr.value
