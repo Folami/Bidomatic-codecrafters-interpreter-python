@@ -68,6 +68,7 @@ def main():
             exit(65)
         parser = Parser(tokens, lox)
         expression = parser.parse()
+        
         if lox.had_error:
             exit(65)
         lox.interpreter.interpret(expression)  # Removed extra print here.
