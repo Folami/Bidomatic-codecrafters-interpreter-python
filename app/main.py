@@ -15,6 +15,12 @@ class PyLox:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)
         self.had_error = True
 
+    def error(self, token, message) -> None:
+        if token.type == TokenType.EOF:
+            self.report(token.line, " at end", message)
+        else:
+            self.report(token.line, f" at '{token.lexeme}'", message)
+
     def runtime_error(self, error) -> None:
         print(f"{error.message}\n[line {error.token.line}]", file=sys.stderr)
         self.had_runtime_error = True
@@ -39,6 +45,16 @@ def main():
             print(token)
         if lox.had_error:
             exit(65)
+    elif command == "parse":
+        scanner = Scanner(file_contents, lox)
+        tokens = scanner.scan_tokens()
+        if lox.had_error:
+            exit(65)
+        parser = Parser(tokens, lox)
+        expression = parser.parse()
+        if lox.had_error:
+            exit(65)
+        print(AstPrinter().print(expression))
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
         
