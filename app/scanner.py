@@ -42,63 +42,61 @@ class Scanner:
 
     def scan_token(self):
         c = self.advance()
-        if c == '(':
-            self.add_token(TokenType.LEFT_PAREN)
-        elif c == ')':
-            self.add_token(TokenType.RIGHT_PAREN)
-        elif c == '{':
-            self.add_token(TokenType.LEFT_BRACE)
-        elif c == '}':
-            self.add_token(TokenType.RIGHT_BRACE)
-        elif c == ',':
-            self.add_token(TokenType.COMMA)
-        elif c == '.':
-            self.add_token(TokenType.DOT)
-        elif c == '-':
-            self.add_token(TokenType.MINUS)
-        elif c == '+':
-            self.add_token(TokenType.PLUS)
-        elif c == ';':
-            self.add_token(TokenType.SEMICOLON)
-        elif c == '*':
-            self.add_token(TokenType.STAR)
-        elif c == '!':
-            self.add_token(TokenType.BANG_EQUAL if self.match('=') else TokenType.BANG)
-        elif c == '=':
-            self.add_token(TokenType.EQUAL_EQUAL if self.match('=') else TokenType.EQUAL)
-        elif c == '<':
-            self.add_token(TokenType.LESS_EQUAL if self.match('=') else TokenType.LESS)
-        elif c == '>':
-            self.add_token(TokenType.GREATER_EQUAL if self.match('=') else TokenType.GREATER)
-        elif c == '/':
-            if self.match('/'):
-                # A comment goes until the end of the line.
-                while self.peek() != '\n' and not self.is_at_end():
-                    self.advance()
-            elif self.match('*'):
-                while self.peek() != '*' and self.peek_next() != '/' and not self.is_at_end():
-                    if self.peek() == '\n':
-                        self.line += 1
-                    self.advance()
-            else:
-                self.add_token(TokenType.SLASH)
-        elif c == ' ':
-            pass
-        elif c == '\r':
-            pass
-        elif c == '\t':
-            pass
-        elif c == '\n':
-            self.line += 1
-        elif c == '"':
-            self.string()
-        else:
-            if c.isdigit():
-                self.number()
-            elif c.isalpha() or c == '_':
-                self.identifier()
-            else:
-                self.lox.error(self.line, f"Unexpected character: {c}")
+        match c:
+            case '(':
+                self.add_token(TokenType.LEFT_PAREN)
+            case ')':
+                self.add_token(TokenType.RIGHT_PAREN)
+            case '{':
+                self.add_token(TokenType.LEFT_BRACE)
+            case '}':
+                self.add_token(TokenType.RIGHT_BRACE)
+            case ',':
+                self.add_token(TokenType.COMMA)
+            case '.':
+                self.add_token(TokenType.DOT)
+            case '-':
+                self.add_token(TokenType.MINUS)
+            case '+':
+                self.add_token(TokenType.PLUS)
+            case ';':
+                self.add_token(TokenType.SEMICOLON)
+            case '*':
+                self.add_token(TokenType.STAR)
+            case '!':
+                self.add_token(TokenType.BANG_EQUAL if self.match('=') else TokenType.BANG)
+            case '=':
+                self.add_token(TokenType.EQUAL_EQUAL if self.match('=') else TokenType.EQUAL)
+            case '<':
+                self.add_token(TokenType.LESS_EQUAL if self.match('=') else TokenType.LESS)
+            case '>':
+                self.add_token(TokenType.GREATER_EQUAL if self.match('=') else TokenType.GREATER)
+            case '/':
+                if self.match('/'):
+                    # A comment goes until the end of the line.
+                    while self.peek() != '\n' and not self.is_at_end():
+                        self.advance()
+                elif self.match('*'):
+                    while self.peek() != '*' and self.peek_next() != '/' and not self.is_at_end():
+                        if self.peek() == '\n':
+                            self.line += 1
+                        self.advance()
+                else:
+                    self.add_token(TokenType.SLASH)
+            case ' ' | '\r' | '\t':
+                # Ignore whitespace.
+                pass
+            case '\n':
+                self.line += 1
+            case '"':
+                self.string()
+            case _:
+                if c.isdigit():
+                    self.number()
+                elif c.isalpha() or c == '_':
+                    self.identifier()
+                else:
+                    self.lox.error(self.line, f"Unexpected character: {c}")
 
     def advance(self):
         self.current += 1
@@ -157,6 +155,6 @@ class Scanner:
             type = TokenType.IDENTIFIER
         self.add_token(type)
 
-    
 
-    
+
+
