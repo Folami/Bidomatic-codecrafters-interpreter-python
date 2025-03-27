@@ -61,6 +61,7 @@ class Interpreter(Visitor):
         if expr.operator.type == TokenType.BANG:
             return not self.is_truthy(right)
         elif expr.operator.type == TokenType.MINUS:
+            self.check_number_operand(expr.operator, right)
             return -float(right)
         # Unreachable; return None.
         return None
@@ -68,7 +69,6 @@ class Interpreter(Visitor):
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):
             return None
-        
         raise RuntimeError(operator, "Operand must be a number.")
 
     def check_number_operands(self, operator, left, right):
