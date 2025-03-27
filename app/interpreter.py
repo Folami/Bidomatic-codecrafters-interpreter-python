@@ -8,7 +8,6 @@ class Interpreter(Visitor):
         try:
             value = self.evaluate(expr)
             print(self.stringify(value))
-            
         except RuntimeError as error:
             # Simply re-raise the error for main.py to handle
             raise        
@@ -25,6 +24,7 @@ class Interpreter(Visitor):
     def visit_binary_expr(self, expr):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
+
         match expr.operator.type:
             case TokenType.GREATER:
                 self.check_number_operands(expr.operator, left, right)
@@ -50,7 +50,8 @@ class Interpreter(Visitor):
             case TokenType.PLUS:
                 if isinstance(left, str) and isinstance(right, str):
                     return left + right
-                return float(left) + float(right)
+                if isinstance(left, float) and isinstance(right, float):
+                    return float(left) + float(right)
                 raise RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
             case TokenType.SLASH:
                 self.check_number_operands(expr.operator, left, right)
