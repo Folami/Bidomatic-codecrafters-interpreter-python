@@ -17,7 +17,7 @@ class PyLox:
         self.had_runtime_error = False
 
     def runScanner(self, source: str):
-        scanner = Scanner(file_contents, lox)
+        scanner = Scanner(source, self)  # Use source instead of file_contents and pass self for lox
         tokens = scanner.scan_tokens()
         return tokens
         # Placeholder for the scanner's output
