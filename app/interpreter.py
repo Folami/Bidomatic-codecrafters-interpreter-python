@@ -1,6 +1,6 @@
 from app.expr import Visitor
 from app.runtime_error import RuntimeError
-
+from app.token_type import TokenType  # if needed
 
 class Interpreter(Visitor):
     def interpret(self, expr):
@@ -8,7 +8,7 @@ class Interpreter(Visitor):
             value = self.evaluate(expr)
             print(self.stringify(value))
         except RuntimeError as error:
-            lox.runtime_error(error)        
+            self.lox.runtime_error(error)        
 
     def visit_literal_expr(self, expr):
         return expr.value
@@ -90,12 +90,14 @@ class Interpreter(Visitor):
             return False
         return a == b
     
-    def stringify(self, obj):
-        if obj is None:
+    def stringify(self, value):
+        if value is None:
             return "nil"
-        if isinstance(obj, float):
-            text = str(obj)
+        if isinstance(value, bool):
+            return "true" if value else "false"
+        if isinstance(value, float):
+            text = str(value)
             if text.endswith(".0"):
                 text = text[:-2]
             return text
-        return str(obj)
+        return str(value)
