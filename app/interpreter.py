@@ -68,6 +68,7 @@ class Interpreter(Visitor):
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):
             return None
+        
         raise RuntimeError(operator, "Operand must be a number.")
 
     def check_number_operands(self, operator, left, right):
