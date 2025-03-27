@@ -1,5 +1,6 @@
 import sys
 from app.scanner import Scanner
+from app.parser import Parser
 
 class PyLox:
     def __init__(self):
