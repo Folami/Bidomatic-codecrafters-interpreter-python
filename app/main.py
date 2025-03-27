@@ -31,15 +31,19 @@ class PyLox:
         return expression
     
     def runInterpreter(self, source: str):
-        expression = self.runParser(source)
+        tokens = self.runScanner(source)
+        if self.had_error:
+            exit(65)
+        parser = Parser(tokens, self)
+        expression = parser.parse()
         if self.had_error:
             exit(65)
         try:
             self.interpreter.interpret(expression)
         except RuntimeError as error:
             self.runtime_error(error)
-            raise error
-        # Placeholder for the interpreter's output
+            # Remove the raise error statement
+            # raise error
 
 
     def error(self, token_or_line, message) -> None:
@@ -84,14 +88,10 @@ def main():
             exit(65)
         print(AstPrinter().print(expression))
     elif command == "evaluate":
-        expression = lox.runParser(file_contents)
-        if lox.had_error:
-            exit(65)
         try:
             lox.runInterpreter(file_contents)
         except RuntimeError as error:
             lox.runtime_error(error)
-        if lox.had_runtime_error:
             exit(70)
     
     else:
