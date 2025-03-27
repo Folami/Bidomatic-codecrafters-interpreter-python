@@ -38,6 +38,7 @@ class PyLox:
             self.interpreter.interpret(expression)
         except RuntimeError as error:
             self.runtime_error(error)
+            raise error
         # Placeholder for the interpreter's output
 
 
