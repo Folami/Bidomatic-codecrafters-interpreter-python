@@ -61,7 +61,6 @@ class Interpreter(Visitor):
         if expr.operator.type == TokenType.BANG:
             return not self.is_truthy(right)
         elif expr.operator.type == TokenType.MINUS:
-            chec
             return -float(right)
         # Unreachable; return None.
         return None
