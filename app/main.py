@@ -70,11 +70,7 @@ def main():
         expression = parser.parse()
         if lox.had_error:
             exit(65)
-        try:
-            value = lox.interpreter.interpret(expression)
-            print(lox.interpreter.stringify(value))
-        except RuntimeError as error:
-            lox.runtime_error(error)
+        lox.interpreter.interpret(expression)  # Removed extra print here.
     
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
