@@ -48,3 +48,7 @@ class TokenType(Enum):
     WHILE = "WHILE"
 
     EOF = "EOF"
+
+    # Ternary operator tokens.
+    QUESTION = "QUESTION"
+    COLON = "COLON"
