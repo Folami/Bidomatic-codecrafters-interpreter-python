@@ -2,32 +2,31 @@ import sys
 from app.scanner import Scanner
 from app.parser import Parser
 from app.ast_printer import AstPrinter
+from app.token_type import TokenType
 
 class PyLox:
     def __init__(self):
         self.had_error = False
         self.had_runtime_error = False
-        
 
-    def error(self, line: int, message: str) -> None:
-        self.report(line, "", message)
-        self.had_error = True
+    def error(self, token_or_line, message) -> None:
+        # If token_or_line is an int, treat it as a line number.
+        if isinstance(token_or_line, int):
+            self.report(token_or_line, "", message)
+        else:
+            # Otherwise, assume it's a token.
+            if token_or_line.type == TokenType.EOF:
+                self.report(token_or_line.line, " at end", message)
+            else:
+                self.report(token_or_line.line, f" at '{token_or_line.lexeme}'", message)
 
     def report(self, line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)
         self.had_error = True
 
-    def error(self, token, message) -> None:
-        if token.type == TokenType.EOF:
-            self.report(token.line, " at end", message)
-        else:
-            self.report(token.line, f" at '{token.lexeme}'", message)
-
     def runtime_error(self, error) -> None:
         print(f"{error.message}\n[line {error.token.line}]", file=sys.stderr)
         self.had_runtime_error = True
-
-
 
 def main():
     lox = PyLox()
