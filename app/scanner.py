@@ -75,7 +75,7 @@ class Scanner:
                 # A comment goes until the end of the line.
                 while self.peek() != '\n' and not self.is_at_end():
                     self.advance()
-            if self.match('*'):
+            elif self.match('*'):
                 while self.peek() != '*' and self.peek_next() != '/' and not self.is_at_end():
                     if self.peek() == '\n':
                         self.line += 1
