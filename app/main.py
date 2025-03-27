@@ -28,7 +28,6 @@ class PyLox:
         expression = parser.parse()  # Assign the result of parser.parse() to expression
         if self.had_error:
             exit(65)
-        print(AstPrinter().print(expression))
         return expression
     
     def runInterpreter(self, source: str):
