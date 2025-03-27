@@ -8,6 +8,7 @@ class Interpreter(Visitor):
         try:
             value = self.evaluate(expr)
             print(self.stringify(value))
+            
         except RuntimeError as error:
             # Simply re-raise the error for main.py to handle
             raise        
