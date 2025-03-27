@@ -4,6 +4,7 @@ from app.parser import Parser
 from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.interpreter import Interpreter
+from app.runtime_error import RuntimeError
 
 
 class PyLox:
@@ -73,11 +74,9 @@ def main():
             exit(65)
         try:
             lox.interpreter.interpret(expression)
-            if lox.had_runtime_error:
-                exit(70)
         except RuntimeError as error:
-            lox.runtime_error(error)  # Use PyLox's runtime_error method
-            exit(70)  # Exit with code 70 for runtime errors
+            lox.runtime_error(error)
+            exit(70)
     
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
