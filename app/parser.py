@@ -1,5 +1,5 @@
 from typing import List
-from token import Token
+from app.token import Token
 
 class Parser:
     def __init__(self, tokens: List[Token], lox):
