@@ -1,5 +1,5 @@
 from typing import List
-from token import Token  # Adjust the import according to your project structure
+from token import Token
 
 class Parser:
     def __init__(self, tokens: List[Token], lox):
