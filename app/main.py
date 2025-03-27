@@ -16,6 +16,30 @@ class PyLox:
         self.had_error = False
         self.had_runtime_error = False
 
+    def runScanner(self, source: str):
+        scanner = Scanner(file_contents, lox)
+        tokens = scanner.scan_tokens()
+        return tokens
+        # Placeholder for the scanner's output
+
+    def runParser(self, source: str):
+        tokens = self.runScanner(source)
+        parser = Parser(tokens, self)
+        print(AstPrinter().print(expression))
+        # Placeholder for the parser's output
+        return expression
+    
+    def runInterpreter(self, source: str):
+        expression = self.runParser(source)
+        if self.had_error:
+            exit(65)
+        try:
+            self.interpreter.interpret(expression)
+        except RuntimeError as error:
+            self.runtime_error(error)
+        # Placeholder for the interpreter's output
+
+
     def error(self, token_or_line, message) -> None:
         # If token_or_line is an int, treat it as a line number.
         if isinstance(token_or_line, int):
@@ -47,35 +71,25 @@ def main():
         file_contents = file.read()
 
     if command == "tokenize":
-        scanner = Scanner(file_contents, lox)
-        tokens = scanner.scan_tokens()
+        tokens = lox.runScanner(file_contents)
+        if lox.had_error:
+            exit(65)
         for token in tokens:
             print(token)
-        if lox.had_error:
-            exit(65)
     elif command == "parse":
-        scanner = Scanner(file_contents, lox)
-        tokens = scanner.scan_tokens()
-        if lox.had_error:
-            exit(65)
-        parser = Parser(tokens, lox)
-        expression = parser.parse()
+        expression = lox.runParser(file_contents)
         if lox.had_error:
             exit(65)
         print(AstPrinter().print(expression))
     elif command == "evaluate":
-        scanner = Scanner(file_contents, lox)
-        tokens = scanner.scan_tokens()
-        if lox.had_error:
-            exit(65)
-        parser = Parser(tokens, lox)
-        expression = parser.parse()
+        expression = lox.runParser(file_contents)
         if lox.had_error:
             exit(65)
         try:
-            lox.interpreter.interpret(expression)
+            lox.runInterpreter(file_contents)
         except RuntimeError as error:
             lox.runtime_error(error)
+        if lox.had_runtime_error:
             exit(70)
     
     else:
