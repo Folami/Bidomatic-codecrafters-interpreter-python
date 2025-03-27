@@ -13,7 +13,26 @@ class Parser:
         pass
 
     def expression(self):
-        return self.equality()
+        # return self.equaliy()
+        return self.conditional()
+
+    def conditional(self):
+        # Start with a comma expression (the next-higher precedence)
+        expr = self.comma()
+        if self.match(TokenType.QUESTION):  # for "?"
+            then_branch = self.expression()  # Parse the true branch
+            self.consume(TokenType.COLON, "Expect ':' after expression.")
+            else_branch = self.conditional() # Right associativity: recursively parse the else branch.
+            expr = Conditional(expr, then_branch, else_branch)
+        return expr
+
+    def comma(self):
+        expr = self.equality()
+        while self.match(TokenType.COMMA):
+            operator = self.previous()
+            right = self.equality()
+            expr = Comma(expr, operator, right)
+        return expr
     
     def equality(self):
         expr = self.comparison()

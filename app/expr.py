@@ -15,6 +15,10 @@ class Visitor:
         raise NotImplementedError()
     def visit_unary_expr(self, expr):
         raise NotImplementedError()
+    def visit_comma_expr(self, expr):
+        raise NotImplementedError()
+    def visit_conditional_expr(self, expr):
+        raise NotImplementedError()
 
 @dataclass
 class Binary(Expr):
@@ -46,3 +50,21 @@ class Unary(Expr):
 
     def accept(self, visitor):
         return visitor.visit_unary_expr(self)
+
+@dataclass
+class Comma(Expr):
+    left: Expr
+    operator: Token
+    right: Expr
+
+    def accept(self, visitor):
+        return visitor.visit_comma_expr(self)
+
+@dataclass
+class Conditional(Expr):
+    condition: Expr
+    then_branch: Expr
+    else_branch: Expr
+
+    def accept(self, visitor):
+        return visitor.visit_conditional_expr(self)

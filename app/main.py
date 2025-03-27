@@ -3,8 +3,13 @@ from app.scanner import Scanner
 from app.parser import Parser
 from app.ast_printer import AstPrinter
 from app.token_type import TokenType
+from app.interpreter import Interpreter
+
 
 class PyLox:
+    # A static interpreter reused across calls.
+    interpreter = Interpreter()
+
     def __init__(self):
         self.had_error = False
         self.had_runtime_error = False
@@ -56,6 +61,21 @@ def main():
         if lox.had_error:
             exit(65)
         print(AstPrinter().print(expression))
+    elif command == "evaluate":
+        scanner = Scanner(file_contents, lox)
+        tokens = scanner.scan_tokens()
+        if lox.had_error:
+            exit(65)
+        parser = Parser(tokens, lox)
+        expression = parser.parse()
+        if lox.had_error:
+            exit(65)
+        try:
+            value = lox.interpreter.interpret(expression)
+            print(lox.interpreter.stringify(value))
+        except RuntimeError as error:
+            lox.runtime_error(error)
+    
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
         

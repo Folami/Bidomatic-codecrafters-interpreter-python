@@ -18,6 +18,13 @@ class AstPrinter:
     def visit_unary_expr(self, expr):
         return self.parenthesize(expr.operator.lexeme, expr.right)
     
+    def visit_comma_expr(self, expr):
+        # You might want to print as: (,<left> <right>)
+        return self.parenthesize(expr.operator.lexeme, expr.left, expr.right)
+    
+    def visit_conditional_expr(self, expr):
+        return self.parenthesize("?:", expr.condition, expr.then_branch, expr.else_branch)
+    
     def parenthesize(self, name, *exprs):
         builder = []
         builder.append(f"({name}")
