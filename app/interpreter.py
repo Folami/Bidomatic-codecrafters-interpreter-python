@@ -9,8 +9,8 @@ class Interpreter(Visitor):
             value = self.evaluate(expr)
             print(self.stringify(value))
         except RuntimeError as error:
-            # Let the error propagate so that main.py can handle it.
-            raise error        
+            # Simply re-raise the error for main.py to handle
+            raise        
 
     def visit_literal_expr(self, expr):
         return expr.value

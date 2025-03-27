@@ -74,8 +74,8 @@ def main():
         try:
             lox.interpreter.interpret(expression)
         except RuntimeError as error:
-            lox.runtime_error(error)
-            exit(70)
+            print(f"{error}", file=sys.stderr)  # Print the error message
+            exit(70)  # Exit with code 70 for runtime errors
     
     else:
         print("EOF  null") # Placeholder, remove this line when implementing the scanner
