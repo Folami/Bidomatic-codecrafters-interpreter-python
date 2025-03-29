@@ -81,7 +81,7 @@ class PyLox:
         if command == "tokenize":
             # Tokenize the input using the scanner.
             tokens = lox.runScanner(file_contents)
-            
+            # Print the tokens.
             for token in tokens:
 
                 print(token)
@@ -107,8 +107,6 @@ class PyLox:
             except RuntimeError as error:
                 lox.runtime_error(error)
                 exit(70)
-            if lox.had_error:
-                exit(65)
         
         else:
             print("EOF  null")
