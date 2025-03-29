@@ -55,31 +55,48 @@ class Parser:
         return self.expression_statement()
     
     def for_statement(self):
+        # Consume '(' after 'for'.
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
-        initializer = None
+        
+        # Parse initializer.
         if self.match(TokenType.SEMICOLON):
             initializer = None
         elif self.match(TokenType.VAR):
             initializer = self.var_declaration()
         else:
             initializer = self.expression_statement()
+        
+        # Parse condition.
         condition = None
-        if not self.match(TokenType.SEMICOLON):
+        if not self.check(TokenType.SEMICOLON):
             condition = self.expression()
-            self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
-            increment = None
-            if not self.match(TokenType.RIGHT_PAREN):
-                increment = self.expression()
-                self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
-                body = self.statement()
-                if increment is not None:
-                    body = Block([body, Expression(increment)])
-                if condition is None:
-                    condition = Literal(True)
-                body = While(condition, body)
-                if initializer is not None:
-                    body = Block([initializer, body])
-                return body
+        self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+        
+        # Parse increment.
+        increment = None
+        if not self.check(TokenType.RIGHT_PAREN):
+            increment = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+        
+        # Parse the body.
+        body = self.statement()
+        
+        # If there is an increment, execute it after each iteration.
+        if increment is not None:
+            body = Block([body, Expression(increment)])
+        
+        # If no condition was specified, default to 'true'.
+        if condition is None:
+            condition = Literal(True)
+        
+        # Build the while loop using the condition and body.
+        body = While(condition, body)
+        
+        # If there is an initializer, execute it before the loop.
+        if initializer is not None:
+            body = Block([initializer, body])
+        
+        return body
 
     def if_statement(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
