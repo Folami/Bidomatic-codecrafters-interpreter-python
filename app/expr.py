@@ -66,3 +66,4 @@ class Variable(Expr):
 
     def accept(self, visitor):
         return visitor.visit_variable_expr(self)
+

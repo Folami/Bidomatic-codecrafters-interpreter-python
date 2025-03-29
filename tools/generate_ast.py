@@ -17,6 +17,8 @@ class ASTGenerator:
             sys.exit(64)
         output_dir = sys.argv[1]
         expr_types = [
+            "Comma   : List<Expr> expressions",
+            "Conditional : Expr condition, Expr then_branch, Expr else_branch",
             "Assign   : Token name, Expr value",
             "Binary   : Expr left, Token operator, Expr right",
             "Grouping : Expr expression",
