@@ -1,8 +1,8 @@
 from typing import List
 from app.token import Token
 from app.token_type import TokenType
-from app.expr import Literal, Grouping, Unary, Binary, Comma, Conditional, Variable
-from app.stmt import Print, Expression, Var, Assign, Block
+from app.expr import Literal, Grouping, Unary, Binary, Comma, Conditional, Variable, Assign
+from app.stmt import Print, Expression, Var, Block
 
 
 
