@@ -79,23 +79,28 @@ class PyLox:
             file_contents = file.read()
 
         if command == "tokenize":
+            # Tokenize the input using the scanner.
             tokens = lox.runScanner(file_contents)
             for token in tokens:
+                
                 print(token)
             if lox.had_error:
                 exit(65)
         elif command == "parse":
+            # Parse the expression using the parser.
             expression = lox.runParser(file_contents)
             if lox.had_error:
                 exit(65)
             print(AstPrinter().print(expression))
         elif command == "evaluate":
+            # Evaluate the expression using the interpreter.
             try:
                 lox.runInterpreter(file_contents)
             except RuntimeError as error:
                 lox.runtime_error(error)
                 exit(70)
         elif command == "run":
+            # Run the interpreter on the provided source code.
             try:
                 lox.runPyLox(file_contents)
             except RuntimeError as error:
