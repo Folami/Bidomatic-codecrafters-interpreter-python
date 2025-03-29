@@ -104,12 +104,17 @@ class Interpreter(Visitor):
                 self.check_number_operands(expr.operator, left, right)
                 return float(left) - float(right)
             case TokenType.PLUS:
+                # Allow addition if both operands are numbers
+                if isinstance(left, float) and isinstance(right, float):
+                    return left + right
+                # Allow concatenation if both operands are strings
+                if isinstance(left, str) and isinstance(right, str):
+                    return left + right
+                # Otherwise, throw a runtime error.
+                raise RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
                 # If either operand is a string, convert both to strings and concatenate.
                 if isinstance(left, str) or isinstance(right, str):
                     return str(left) + str(right)
-                if isinstance(left, float) and isinstance(right, float):
-                    return float(left) + float(right)
-                raise RuntimeError(expr.operator, "Operands must be two numbers or at least one string.")
             case TokenType.SLASH:
                 self.check_number_operands(expr.operator, left, right)
                 if float(right) == 0.0:
