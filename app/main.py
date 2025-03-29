@@ -83,7 +83,6 @@ class PyLox:
             tokens = lox.runScanner(file_contents)
             # Print the tokens.
             for token in tokens:
-
                 print(token)
             if lox.had_error:
                 exit(65)
@@ -110,6 +109,7 @@ class PyLox:
         
         else:
             print("EOF  null")
+            exit(0)
 
 
 if __name__ == "__main__":
