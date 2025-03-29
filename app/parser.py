@@ -1,7 +1,10 @@
 from typing import List
 from app.token import Token
 from app.token_type import TokenType
-from app.expr import Literal, Grouping, Unary, Binary
+from app.expr import Literal, Grouping, Unary, Binary, Comma, Conditional, Variable
+from app.stmt import Print, Expression, Var, Assign, Block
+
+
 
 class Parser:
     def __init__(self, tokens: List[Token], lox):
@@ -12,9 +15,76 @@ class Parser:
     class ParserError(Exception):
         pass
 
+    def parseExpression(self):
+        # This method is a wrapper to handle parsing errors.
+        try:
+            return self.expression()
+        except Parser.ParserError:
+            return None
+        # Handle parser errors here if needed.
+
+    def parseStatements(self):
+        statements = []
+        while not self.is_at_end():
+            statements.append(self.declaration())
+        return statements
+
     def expression(self):
-        # return self.equaliy()
-        return self.conditional()
+        # return self.equality()
+        # return self.conditional()
+        return assignment()
+    
+    def declaration(self):
+        try:
+            if self.match(TokenType.VAR):
+                return self.var_declaration()
+            return self.statement()
+        except Parser.ParserError:
+            self.synchronize()
+            return None
+    
+    def statement(self):
+        if self.match(TokenType.PRINT):
+            return self.print_statement()
+        if self.match(TokenType.LEFT_BRACE):
+            return Block(self.block())
+        return self.expression_statement()
+    
+    def print_statement(self):
+        value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
+        return Print(value)
+    
+    def var_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+        initializer = None
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return Var(name, initializer)
+    
+    def expression_statement(self):
+        expr = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
+        return Expression(expr)
+    
+    def block(self):
+        statements = []
+        while not self.is_at_end() and not self.check(TokenType.RIGHT_BRACE):
+            statements.append(self.declaration())
+        self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
+    
+    def assignment(self):
+        expr = self.conditional()
+        if self.match(TokenType.EQUAL):
+            equals = self.previous()
+            value = self.assignment()
+            if isinstance(expr, Variable):
+                name = expr.name
+                return Assign(name, value)
+            self.error(equals, "Invalid assignment target.")
+        return expr
 
     def conditional(self):
         # Start with a comma expression (the next-higher precedence)
@@ -82,19 +152,14 @@ class Parser:
             return Literal(None)
         if self.match(TokenType.NUMBER, TokenType.STRING):
             return Literal(self.previous().literal)
+        if self.match(TokenType.IDENTIFIER):
+            return Variable(self.previous())
         if self.match(TokenType.LEFT_PAREN):
             expr = self.expression()
             self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
         
         raise self.error(self.peek(), "Expect expression.")
-    
-    def parse(self):
-        try:
-            return self.expression()
-        except Parser.ParserError:
-            return None
-        # Handle parser errors here if needed.
         
     def consume(self, token_type, message):
         if self.check(token_type):

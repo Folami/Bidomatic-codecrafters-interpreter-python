@@ -25,21 +25,26 @@ class PyLox:
     def runParser(self, source: str):
         tokens = self.runScanner(source)
         parser = Parser(tokens, self)
-        expression = parser.parse()  # Assign the result of parser.parse() to expression
+        expression = parser.parseExpression()
         if self.had_error:
             exit(65)
         return expression
     
     def runInterpreter(self, source: str):
+        expression = self.runParser(source)
+        if self.had_error:
+            exit(65)
+        self.interpreter.interpretExpression(expression)
+        # Placeholder for the interpreter's output
+
+    def runPyLox(self, source: str):
         tokens = self.runScanner(source)
-        if self.had_error:
-            exit(65)
         parser = Parser(tokens, self)
-        expression = parser.parse()
+        statements = parser.parseStatements()
         if self.had_error:
             exit(65)
-        # Let the RuntimeError propagate so main() can catch it.
-        self.interpreter.interpret(expression)
+        self.interpreter.interpretStatements(statements)
+        # Placeholder for the interpreter's output
 
 
     def error(self, token_or_line, message) -> None:
@@ -61,38 +66,44 @@ class PyLox:
         print(f"{error}\n[line {error.token.line}]", file=sys.stderr)
         self.had_runtime_error = True
 
-def main():
-    lox = PyLox()
-    if len(sys.argv) < 3:
-        print("Usage: ./your_program.sh tokenize <filename>", file=sys.stderr)
-        exit(1)
+    def run(self):
+        # This method should be called to start the program.
+        lox = PyLox()
+        if len(sys.argv) < 3:
+            print("Usage: ./your_program.sh tokenize <filename>", file=sys.stderr)
+            exit(1)
 
-    command = sys.argv[1]
-    filename = sys.argv[2]
-    with open(filename) as file:
-        file_contents = file.read()
+        command = sys.argv[1]
+        filename = sys.argv[2]
+        with open(filename) as file:
+            file_contents = file.read()
 
-    if command == "tokenize":
-        tokens = lox.runScanner(file_contents)
-        for token in tokens:
-            print(token)
-        if lox.had_error:
-            exit(65)
-    elif command == "parse":
-        expression = lox.runParser(file_contents)
-        if lox.had_error:
-            exit(65)
-        print(AstPrinter().print(expression))
-    elif command == "evaluate":
-        try:
-            lox.runInterpreter(file_contents)
-        except RuntimeError as error:
-            lox.runtime_error(error)
-            exit(70)
-    
-    else:
-        print("EOF  null") # Placeholder, remove this line when implementing the scanner
+        if command == "tokenize":
+            tokens = lox.runScanner(file_contents)
+            for token in tokens:
+                print(token)
+            if lox.had_error:
+                exit(65)
+        elif command == "parse":
+            expression = lox.runParser(file_contents)
+            if lox.had_error:
+                exit(65)
+            print(AstPrinter().print(expression))
+        elif command == "evaluate":
+            try:
+                lox.runInterpreter(file_contents)
+            except RuntimeError as error:
+                lox.runtime_error(error)
+                exit(70)
+        elif command == "run":
+            lox.runPyLox(file_contents)
+            if lox.had_error:
+                exit(65)
+        
+        else:
+            print("EOF  null") # Placeholder, remove this line when implementing the scanner
         
 
 if __name__ == "__main__":
-    main()
+    py_lox = PyLox()
+    py_lox.run()
