@@ -124,7 +124,7 @@ class Parser:
         return statements
     
     def assignment(self):
-        expr = self.conditional()
+        expr = self.or_()
         if self.match(TokenType.EQUAL):
             equals = self.previous()
             value = self.assignment()
