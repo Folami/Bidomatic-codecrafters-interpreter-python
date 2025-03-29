@@ -88,6 +88,7 @@ class PyLox:
             expression = lox.runParser(file_contents)
             if lox.had_error:
                 exit(65)
+                
             print(AstPrinter().print(expression))
         elif command == "evaluate":
             try:
