@@ -16,6 +16,8 @@ class Visitor:
         raise NotImplementedError()
     def visit_binary_expr(self, expr):
         raise NotImplementedError()
+    def visit_call_expr(self, expr):
+        raise NotImplementedError()
     def visit_grouping_expr(self, expr):
         raise NotImplementedError()
     def visit_literal_expr(self, expr):
@@ -59,6 +61,15 @@ class Binary(Expr):
 
     def accept(self, visitor):
         return visitor.visit_binary_expr(self)
+
+@dataclass
+class Call(Expr):
+    callee: Expr
+    paren: Token
+    arguments: List[Expr]
+
+    def accept(self, visitor):
+        return visitor.visit_call_expr(self)
 
 @dataclass
 class Grouping(Expr):
