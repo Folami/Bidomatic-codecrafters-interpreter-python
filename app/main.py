@@ -110,7 +110,6 @@ class PyLox:
         
         else:
             print("EOF  null")
-            exit(0)
 
 
 if __name__ == "__main__":
