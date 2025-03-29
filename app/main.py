@@ -81,8 +81,9 @@ class PyLox:
         if command == "tokenize":
             # Tokenize the input using the scanner.
             tokens = lox.runScanner(file_contents)
+            
             for token in tokens:
-                
+
                 print(token)
             if lox.had_error:
                 exit(65)
