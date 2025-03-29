@@ -32,7 +32,7 @@ class Parser:
     def expression(self):
         # return self.equality()
         # return self.conditional()
-        return assignment()
+        return self.assignment()
     
     def declaration(self):
         try:
