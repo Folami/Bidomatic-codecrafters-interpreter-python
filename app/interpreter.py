@@ -1,7 +1,7 @@
 from app.expr import Visitor
 from app.runtime_error import RuntimeError
 from app.token_type import TokenType  # if needed
-from app.environment import Environment
+from app.environment import Environment   # <-- Added import here
 
 class Interpreter(Visitor):
     def __init__(self):
