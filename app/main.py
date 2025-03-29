@@ -110,7 +110,7 @@ class PyLox:
         else:
             print("EOF  null")
             exit(0)
-
+        # If no command is provided, print an error message.
 
 if __name__ == "__main__":
     py_lox = PyLox()
