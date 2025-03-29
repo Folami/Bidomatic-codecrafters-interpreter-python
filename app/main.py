@@ -88,7 +88,6 @@ class PyLox:
             expression = lox.runParser(file_contents)
             if lox.had_error:
                 exit(65)
-                
             print(AstPrinter().print(expression))
         elif command == "evaluate":
             try:
@@ -97,13 +96,18 @@ class PyLox:
                 lox.runtime_error(error)
                 exit(70)
         elif command == "run":
-            lox.runPyLox(file_contents)
+            try:
+                lox.runPyLox(file_contents)
+            except RuntimeError as error:
+                lox.runtime_error(error)
+                exit(70)
             if lox.had_error:
                 exit(65)
         
         else:
-            print("EOF  null") # Placeholder, remove this line when implementing the scanner
-        
+            print("EOF  null")
+            exit(0)
+
 
 if __name__ == "__main__":
     py_lox = PyLox()
