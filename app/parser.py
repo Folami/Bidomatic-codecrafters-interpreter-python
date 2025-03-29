@@ -30,9 +30,7 @@ class Parser:
         return statements
 
     def expression(self):
-        # return self.equality()
-        # return self.conditional()
-        return self.assignment()
+        return self.or_()
     
     def declaration(self):
         try:
