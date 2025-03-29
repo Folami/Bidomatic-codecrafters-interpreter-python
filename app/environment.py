@@ -14,7 +14,7 @@ class Environment:
         if self.enclosing is not None:
             return self.enclosing.get(name)
         # Use our custom RuntimeError with the token
-        
+        # to provide more context about the error
         raise RuntimeError(name, f"Undefined variable '{name.lexeme}'.")
     
     def assign(self, name, value):
