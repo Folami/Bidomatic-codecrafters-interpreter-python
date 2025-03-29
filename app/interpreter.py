@@ -26,6 +26,16 @@ class Interpreter(Visitor):
     def visit_literal_expr(self, expr):
         return expr.value
     
+    def visit_logical_expr(self, expr):
+        left = self.evaluate(expr.left)
+        if expr.operator.type == TokenType.OR:
+            if self.is_truthy(left):
+                return left
+        else:
+            if not self.is_truthy(left):
+                return left
+        return self.evaluate(expr.right)
+    
     def visit_grouping_expr(self, expr):
         return self.evaluate(expr.expression)
     
@@ -60,6 +70,13 @@ class Interpreter(Visitor):
         self.evaluate(stmt.expression)
         return None
     
+    def visit_if_stmt(self, stmt):
+        if self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.thenBranch)
+        elif stmt.elseBranch is not None:
+            self.execute(stmt.elseBranch)
+        return None
+
     def visit_print_stmt(self, stmt):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
@@ -70,6 +87,11 @@ class Interpreter(Visitor):
         if stmt.initializer is not None:
             value = self.evaluate(stmt.initializer)
         self.environment.define(stmt.name.lexeme, value)
+        return None
+    
+    def visit_while_stmt(self, stmt):
+        while self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
         return None
     
     def visit_assign_expr(self, expr):

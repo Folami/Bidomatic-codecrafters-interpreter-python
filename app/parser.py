@@ -1,8 +1,8 @@
 from typing import List
 from app.token import Token
 from app.token_type import TokenType
-from app.expr import Literal, Grouping, Unary, Binary, Comma, Conditional, Variable, Assign
-from app.stmt import Print, Expression, Var, Block
+from app.expr import Literal, Grouping, Unary, Binary, Comma, Conditional, Variable, Assign, Logical
+from app.stmt import Print, Expression, Var, Block, If, While
 
 
 
@@ -44,11 +44,54 @@ class Parser:
             return None
     
     def statement(self):
+        if self.match(TokenType.FOR):
+            return self.for_statement()
+        if self.match(TokenType.IF):
+            return self.if_statement()
         if self.match(TokenType.PRINT):
             return self.print_statement()
+        if self.match(TokenType.WHILE):
+            return self.while_statement()
         if self.match(TokenType.LEFT_BRACE):
             return Block(self.block())
         return self.expression_statement()
+    
+    def for_statement(self):
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
+        initializer = None
+        if self.match(TokenType.SEMICOLON):
+            initializer = None
+        elif self.match(TokenType.VAR):
+            initializer = self.var_declaration()
+        else:
+            initializer = self.expression_statement()
+        condition = None
+        if not self.match(TokenType.SEMICOLON):
+            condition = self.expression()
+            self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
+            increment = None
+            if not self.match(TokenType.RIGHT_PAREN):
+                increment = self.expression()
+                self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
+                body = self.statement()
+                if increment is not None:
+                    body = Block([body, Expression(increment)])
+                if condition is None:
+                    condition = Literal(True)
+                body = While(condition, body)
+                if initializer is not None:
+                    body = Block([initializer, body])
+                return body
+
+    def if_statement(self):
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.")
+        condition = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.")
+        then_branch = self.statement()
+        else_branch = None
+        if self.match(TokenType.ELSE):
+            else_branch = self.statement()
+        return If(condition, then_branch, else_branch)
     
     def print_statement(self):
         value = self.expression()
@@ -62,6 +105,13 @@ class Parser:
             initializer = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
         return Var(name, initializer)
+    
+    def while_statement(self):
+        self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition = self.expression()
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
+        body = self.statement()
+        return While(condition, body)
     
     def expression_statement(self):
         expr = self.expression()
@@ -102,6 +152,22 @@ class Parser:
             operator = self.previous()
             right = self.equality()
             expr = Comma(expr, operator, right)
+        return expr
+    
+    def or_(self):
+        expr = self.and_()
+        while self.match(TokenType.OR):
+            operator = self.previous()
+            right = self.and_()
+            expr = Logical(expr, operator, right)
+        return expr
+    
+    def and_(self):
+        expr = self.equality()
+        while self.match(TokenType.AND):
+            operator = self.previous()
+            right = self.equality()
+            expr = Logical(expr, operator, right)
         return expr
     
     def equality(self):

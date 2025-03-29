@@ -11,13 +11,12 @@ class PyLox:
     # A static interpreter reused across calls.
     interpreter = Interpreter()
     # A static instance of the PyLox class.
-
     def __init__(self):
         self.had_error = False
         self.had_runtime_error = False
 
     def runScanner(self, source: str):
-        scanner = Scanner(source, self)  # Use source instead of file_contents and pass self for lox
+        scanner = Scanner(source, self)
         tokens = scanner.scan_tokens()
         return tokens
         # Placeholder for the scanner's output
@@ -110,8 +109,6 @@ class PyLox:
         else:
             print("EOF  null")
             exit(0)
-        # If no command is provided, print an error message.
-        # This is a placeholder for the main function.
 
 if __name__ == "__main__":
     py_lox = PyLox()
