@@ -66,7 +66,7 @@ class PyLox:
         self.had_runtime_error = True
 
     def run(self):
-        # This method should be called to start the program.
+        # This method should be called to start the program
         lox = PyLox()
         if len(sys.argv) < 3:
             print("Usage: ./your_program.sh tokenize <filename>", file=sys.stderr)

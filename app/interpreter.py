@@ -1,8 +1,8 @@
 import time
 from app.expr import Visitor
 from app.runtime_error import RuntimeError
-from app.token_type import TokenType  # if needed
-from app.return_exception import Return  # Import the Return class or exception
+from app.token_type import TokenType
+from app.return_exception import Return
 from app.environment import Environment
 from app.lox_callable import LoxCallable
 from app.lox_function import LoxFunction
