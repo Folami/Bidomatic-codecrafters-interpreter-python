@@ -2,7 +2,7 @@ from typing import List
 from app.token import Token
 from app.token_type import TokenType
 from app.expr import Literal, Grouping, Unary, Binary, Comma, Conditional, Variable, Assign, Logical, Call
-from app.stmt import Print, Expression, Var, Block, If, While
+from app.stmt import Print, Expression, Var, Block, If, While, Function, Return
 
 
 
@@ -34,6 +34,8 @@ class Parser:
     
     def declaration(self):
         try:
+            if self.match(TokenType.FUN):
+                return self.function("function")
             if self.match(TokenType.VAR):
                 return self.var_declaration()
             return self.statement()
@@ -48,6 +50,8 @@ class Parser:
             return self.if_statement()
         if self.match(TokenType.PRINT):
             return self.print_statement()
+        if self.match(TokenType.RETURN):
+            return self.return_statement()
         if self.match(TokenType.WHILE):
             return self.while_statement()
         if self.match(TokenType.LEFT_BRACE):
@@ -113,6 +117,14 @@ class Parser:
         self.consume(TokenType.SEMICOLON, "Expect ';' after value.")
         return Print(value)
     
+    def return_statement(self):
+        keyword = self.previous()
+        value = None
+        if not self.check(TokenType.SEMICOLON):
+            value = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
+        return Return(keyword, value)
+    
     def var_declaration(self):
         name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
         initializer = None
@@ -127,12 +139,28 @@ class Parser:
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.")
         body = self.statement()
         return While(condition, body)
-    
+
     def expression_statement(self):
         expr = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after expression.")
         return Expression(expr)
-    
+
+    def function(self, kind: str):
+        name = self.consume(TokenType.IDENTIFIER, f"Expect {kind} name.")
+        self.consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name.")
+        parameters = []
+        if not self.check(TokenType.RIGHT_PAREN):
+            while True:
+                if len(parameters) >= 255:
+                    self.error(self.peek(), "Can't have more than 255 parameters.")
+                parameters.append(self.consume(TokenType.IDENTIFIER, "Expect parameter name."))
+                if not self.match(TokenType.COMMA):
+                    break
+        self.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.")
+        self.consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body.")
+        body = self.block()
+        return Function(name, parameters, body)
+
     def block(self):
         statements = []
         while not self.is_at_end() and not self.check(TokenType.RIGHT_BRACE):

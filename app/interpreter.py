@@ -1,11 +1,28 @@
+import time
 from app.expr import Visitor
 from app.runtime_error import RuntimeError
 from app.token_type import TokenType  # if needed
-from app.environment import Environment   # <-- Added import here
+from app.return_exception import Return  # Import the Return class or exception
+from app.environment import Environment
+from app.lox_callable import LoxCallable
+from app.lox_function import LoxFunction
+
+class Clock(LoxCallable):
+    def arity(self) -> int:
+        return 0
+
+    def call(self, interpreter, arguments):
+        # Return the current time in seconds.
+        return time.time()
+
+    def __str__(self):
+        return "<native fn>"
 
 class Interpreter(Visitor):
     def __init__(self):
-        self.environment = Environment()
+        self.globals = Environment()
+        self.environment = self.globals
+        self.globals.define("clock", Clock())
     
     def interpretExpression(self, expr):
         try:
@@ -70,6 +87,11 @@ class Interpreter(Visitor):
         self.evaluate(stmt.expression)
         return None
     
+    def visit_function_stmt(self, stmt):
+        function = LoxFunction(stmt, self.environment)
+        self.environment.define(stmt.name.lexeme, function)
+        return None
+    
     def visit_if_stmt(self, stmt):
         if self.is_truthy(self.evaluate(stmt.condition)):
             self.execute(stmt.thenBranch)
@@ -81,6 +103,11 @@ class Interpreter(Visitor):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
         return None
+    
+    def visit_return_stmt(self, stmt):
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+        raise Return(value)
     
     def visit_var_stmt(self, stmt):
         value = None
@@ -145,6 +172,18 @@ class Interpreter(Visitor):
             case TokenType.STAR:
                 self.check_number_operands(expr.operator, left, right)
                 return float(left) * float(right)
+            
+    def visit_call_expr(self, expr):
+        callee = self.evaluate(expr.callee)
+        arguments = []
+        for arg in expr.arguments:
+            arguments.append(self.evaluate(arg))
+        if not isinstance(callee, LoxCallable):
+            raise RuntimeError(expr.paren, "Can only call functions and classes.")
+        function = callee
+        if len(arguments) != function.arity():
+            raise RuntimeError(expr.paren, f"Expected {function.arity()} arguments but got {len(arguments)}.")
+        return function.call(self, arguments)
     
     def visit_unary_expr(self, expr):
         right = self.evaluate(expr.right)
