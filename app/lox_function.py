@@ -1,7 +1,7 @@
 from app.lox_callable import LoxCallable
 from app.environment import Environment
 from app.stmt import Function
-from app.return_ import Return
+from app.return_exception import Return
 
 class LoxFunction(LoxCallable):
     def __init__(self, declaration: Function, closure: Environment=None) -> None:
