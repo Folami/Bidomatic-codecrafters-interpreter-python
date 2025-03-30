@@ -105,6 +105,7 @@ class Interpreter(Visitor):
         return None
     
     def visit_return_stmt(self, stmt):
+        value = None
         if stmt.value is not None:
             value = self.evaluate(stmt.value)
         raise Return(value)
