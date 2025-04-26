@@ -1,6 +1,7 @@
 import sys
 from app.scanner import Scanner
 from app.parser import Parser
+from app.resolver import Resolver
 from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.interpreter import Interpreter
