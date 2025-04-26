@@ -93,10 +93,17 @@ class Unary(Expr):
     def accept(self, visitor):
         return visitor.visit_unary_expr(self)
 
-@dataclass
 class Variable(Expr):
-    name: Token
+    def __init__(self, name):
+        self.name = name
 
     def accept(self, visitor):
         return visitor.visit_variable_expr(self)
+
+    def __eq__(self, other):
+        return isinstance(other, Variable) and self.name == other.name
+
+    def __hash__(self):
+        # Use the id of the instance; this ensures each node is hashable based on object identity.
+        return id(self)
 
