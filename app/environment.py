@@ -15,6 +15,15 @@ class Environment:
             return self.enclosing.get(name)
         raise RuntimeError(name, f"Undefined variable '{name.lexeme}'.")
     
+    def get_at(self, distance, name):
+        return self.ancestor(distance).values[name.lexeme]
+    
+    def ancestor(self, distance):
+        env = self
+        for _ in range(distance):
+            env = env.enclosing
+        return env
+    
     def assign(self, name, value):
         if name.lexeme in self.values:
             self.values[name.lexeme] = value
@@ -23,4 +32,7 @@ class Environment:
             self.enclosing.assign(name, value)
             return
         raise RuntimeError(name, f"Undefined variable '{name.lexeme}'.")
+    
+    def assign_at(self, distance, name, value):
+        self.ancestor(distance).values[name.lexeme] = value
 

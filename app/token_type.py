@@ -47,8 +47,9 @@ class TokenType(Enum):
     VAR = "VAR"
     WHILE = "WHILE"
 
-    EOF = "EOF"
-
     # Ternary operator tokens.
     QUESTION = "QUESTION"
     COLON = "COLON"
+
+    # End of file.
+    EOF = "EOF"

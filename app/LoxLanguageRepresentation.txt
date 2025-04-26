@@ -1,0 +1,123 @@
+expression     → literal
+               | unary
+               | binary
+               | ternary
+               | grouping ;
+literal        → NUMBER | STRING | "true" | "false" | "nil" ;
+grouping       → "(" expression ")" ;
+unary          → ( "-" | "!" ) expression ;
+binary         → expression operator expression ;
+ternary        → expression "?" expression ":" expression ;
+operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
+               | "+"  | "-"  | "*" | "/" ;
+
+
+expression     → ...
+equality       → ...
+comparison     → ...
+term           → ...
+factor         → ...
+unary          → ...
+primary        → ...   
+
+expression     → equality ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary
+               | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil"
+               | "(" expression ")" ;
+
+
+program        → statement* EOF ;
+statement      → exprStmt
+               | printStmt ;
+exprStmt       → expression ";" ;
+printStmt      → "print" expression ";" ;
+
+
+program        → declaration* EOF ;
+declaration    → varDecl
+               | statement ;
+statement      → exprStmt
+               | printStmt ;
+varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+
+
+primary        → "true" | "false" | "nil"
+               | NUMBER | STRING
+               | "(" expression ")"
+               | IDENTIFIER ;
+
+
+expression     → assignment ;
+assignment     → IDENTIFIER "=" assignment
+               | equality ;
+
+
+statement      → exprStmt
+               | printStmt
+               | block ;
+block          → "{" declaration* "}" ;
+
+
+statement      → exprStmt
+               | ifStmt
+               | printStmt
+               | block ;
+ifStmt         → "if" "(" expression ")" statement
+               ( "else" statement )? ;
+
+
+
+expression     → assignment ;
+assignment     → IDENTIFIER "=" assignment
+               | logic_or ;
+logic_or       → logic_and ( "or" logic_and )* ;
+logic_and      → equality ( "and" equality )* ;
+
+
+statement      → exprStmt
+               | ifStmt
+               | printStmt
+               | whileStmt
+               | block ;
+whileStmt      → "while" "(" expression ")" statement ;
+
+
+statement      → exprStmt
+               | forStmt
+               | ifStmt
+               | printStmt
+               | whileStmt
+               | block ;
+forStmt        → "for" "(" ( varDecl | exprStmt | ";" )
+                 expression? ";"
+                 expression? ")" statement ;
+
+
+unary          → ( "!" | "-" ) unary | call ;
+call           → primary ( "(" arguments? ")" )* ;
+arguments      → expression ( "," expression )* ;
+
+
+
+declaration    → funDecl
+               | varDecl
+               | statement ;
+funDecl        → "fun" function ;
+function       → IDENTIFIER "(" parameters? ")" block ;
+parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
+
+
+
+statement      → exprStmt
+               | forStmt
+               | ifStmt
+               | printStmt
+               | returnStmt
+               | whileStmt
+               | block ;
+returnStmt     → "return" expression? ";" ;

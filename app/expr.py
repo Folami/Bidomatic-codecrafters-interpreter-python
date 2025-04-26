@@ -37,15 +37,6 @@ class Comma(Expr):
         return visitor.visit_comma_expr(self)
 
 @dataclass
-class Conditional(Expr):
-    condition: Expr
-    then_branch: Expr
-    else_branch: Expr
-
-    def accept(self, visitor):
-        return visitor.visit_conditional_expr(self)
-
-@dataclass
 class Assign(Expr):
     name: Token
     value: Expr

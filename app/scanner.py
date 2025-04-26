@@ -43,51 +43,25 @@ class Scanner:
     def scan_token(self):
         c = self.advance()
         match c:
-            case '(':
-                self.add_token(TokenType.LEFT_PAREN)
-            case ')':
-                self.add_token(TokenType.RIGHT_PAREN)
-            case '{':
-                self.add_token(TokenType.LEFT_BRACE)
-            case '}':
-                self.add_token(TokenType.RIGHT_BRACE)
-            case ',':
-                self.add_token(TokenType.COMMA)
-            case '.':
-                self.add_token(TokenType.DOT)
-            case '-':
-                self.add_token(TokenType.MINUS)
-            case '+':
-                self.add_token(TokenType.PLUS)
-            case ';':
-                self.add_token(TokenType.SEMICOLON)
-            case '*':
-                self.add_token(TokenType.STAR)
-            case '!':
-                self.add_token(TokenType.BANG_EQUAL if self.match('=') else TokenType.BANG)
-            case '=':
-                self.add_token(TokenType.EQUAL_EQUAL if self.match('=') else TokenType.EQUAL)
-            case '<':
-                self.add_token(TokenType.LESS_EQUAL if self.match('=') else TokenType.LESS)
-            case '>':
-                self.add_token(TokenType.GREATER_EQUAL if self.match('=') else TokenType.GREATER)
+            # Single-character tokens.
+            case '(' | ')' | '{' | '}' | ',' | '.' | '-' | '+' | ';' | '*':
+                self.handle_single_character_token(c)
+            # One-or-two character tokens.
+            case '!' | '=' | '<' | '>':
+                self.handle_one_or_two_character_token(c)
+            # Ternary operator tokens.
+            case '?' | ':':
+                self.add_token(TokenType.QUESTION if c == '?' else TokenType.COLON)
+            # Slash token and comments.
             case '/':
-                if self.match('/'):
-                    # A comment goes until the end of the line.
-                    while self.peek() != '\n' and not self.is_at_end():
-                        self.advance()
-                elif self.match('*'):
-                    while self.peek() != '*' and self.peek_next() != '/' and not self.is_at_end():
-                        if self.peek() == '\n':
-                            self.line += 1
-                        self.advance()
-                else:
-                    self.add_token(TokenType.SLASH)
+                self.handle_slash_token()
+            # Ignore whitespace.
             case ' ' | '\r' | '\t':
-                # Ignore whitespace.
                 pass
+            # Newline token.
             case '\n':
                 self.line += 1
+            # Literal tokens.
             case '"':
                 self.string()
             case _:
@@ -98,13 +72,60 @@ class Scanner:
                 else:
                     self.lox.error(self.line, f"Unexpected character: {c}")
 
+    def handle_single_character_token(self, c):
+        if c == '(':
+            self.add_token(TokenType.LEFT_PAREN)
+        elif c == ')':
+            self.add_token(TokenType.RIGHT_PAREN)
+        elif c == '{':
+            self.add_token(TokenType.LEFT_BRACE)
+        elif c == '}':
+            self.add_token(TokenType.RIGHT_BRACE)
+        elif c == ',':
+            self.add_token(TokenType.COMMA)
+        elif c == '.':
+            self.add_token(TokenType.DOT)
+        elif c == '-':
+            self.add_token(TokenType.MINUS)
+        elif c == '+':
+            self.add_token(TokenType.PLUS)
+        elif c == ';':
+            self.add_token(TokenType.SEMICOLON)
+        elif c == '*':
+            self.add_token(TokenType.STAR)
+
+    def handle_one_or_two_character_token(self, c):
+        if c == '!':
+            self.add_token(TokenType.BANG_EQUAL if self.match('=') else TokenType.BANG)
+        elif c == '=':
+            self.add_token(TokenType.EQUAL_EQUAL if self.match('=') else TokenType.EQUAL)
+        elif c == '<':
+            self.add_token(TokenType.LESS_EQUAL if self.match('=') else TokenType.LESS)
+        elif c == '>':
+            self.add_token(TokenType.GREATER_EQUAL if self.match('=') else TokenType.GREATER)
+
+    def handle_slash_token(self):
+        if self.match('/'):
+            # A comment goes until the end of the line.
+            while self.peek() != '\n' and not self.is_at_end():
+                self.advance()
+        elif self.match('*'):
+            # A block comment.
+            while self.peek() != '*' and self.peek_next() != '/' and not self.is_at_end():
+                if self.peek() == '\n':
+                    self.line += 1
+                self.advance()
+        else:
+            self.add_token(TokenType.SLASH)
+
     def advance(self):
         self.current += 1
         return self.source[self.current - 1]
 
     def add_token(self, type, literal=None):
         text = self.source[self.start : self.current]
-        self.tokens.append(Token(type, text, literal, self.line))
+        token = Token(type, text, literal, self.line)
+        self.tokens.append(token)
 
     def match(self, expected):
         if self.is_at_end():
@@ -139,7 +160,8 @@ class Scanner:
             self.advance()
             while self.peek().isdigit():
                 self.advance()
-        self.add_token(TokenType.NUMBER, float(self.source[self.start : self.current]))
+        number = self.source[self.start : self.current]
+        self.add_token(TokenType.NUMBER, float(number))
 
     def peek_next(self):
         if self.current + 1 >= len(self.source):
@@ -154,7 +176,4 @@ class Scanner:
         if type is None:
             type = TokenType.IDENTIFIER
         self.add_token(type)
-
-
-
 

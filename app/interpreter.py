@@ -17,11 +17,63 @@ class Clock(LoxCallable):
 
     def __str__(self):
         return "<native fn>"
+    
+class ReadInput(LoxCallable):
+    def arity(self) -> int:
+        return 0
+
+    def call(self, interpreter, arguments):
+        # Read a line from standard input and return it.
+        return input()
+
+    def __str__(self):
+        return "<native fn>"
+    
+class ReadFile(LoxCallable):
+    def arity(self) -> int:
+        return 1
+
+    def call(self, interpreter, arguments):
+        # Read a file and return its contents.
+        filename = arguments[0]
+        with open(filename, 'r') as file:
+            return file.read()
+
+    def __str__(self):
+        return "<native fn>"
+    
+class WriteFile(LoxCallable):
+    def arity(self) -> int:
+        return 2
+
+    def call(self, interpreter, arguments):
+        # Write to a file.
+        filename = arguments[0]
+        content = arguments[1]
+        with open(filename, 'w') as file:
+            file.write(content)
+        return None
+
+    def __str__(self):
+        return "<native fn>"
+    
+class Print(LoxCallable):
+    def arity(self) -> int:
+        return 1
+
+    def call(self, interpreter, arguments):
+        # Print the argument to standard output.
+        print(arguments[0])
+        return None
+
+    def __str__(self):
+        return "<native fn>"
 
 class Interpreter(Visitor):
     def __init__(self):
         self.globals = Environment()
         self.environment = self.globals
+        self.locals = {}
         self.globals.define("clock", Clock())
     
     def interpretExpression(self, expr):
@@ -62,6 +114,9 @@ class Interpreter(Visitor):
     def execute(self, stmt):
         stmt.accept(self)
 
+    def resolve(self, expr, depth):
+        self.locals[expr] = depth
+
     def visit_block_stmt(self, stmt):
         self.execute_block(stmt.statements, Environment(self.environment))
         return None
@@ -74,14 +129,6 @@ class Interpreter(Visitor):
                 self.execute(statement)
         finally:
             self.environment = previous
-
-    def visit_conditional_expr(self, expr):
-        condition = self.evaluate(expr.condition)
-        if self.is_truthy(condition):
-            return self.evaluate(expr.then_branch)
-        elif expr.else_branch is not None:
-            return self.evaluate(expr.else_branch)
-        return None
     
     def visit_expression_stmt(self, stmt):
         self.evaluate(stmt.expression)
@@ -116,7 +163,7 @@ class Interpreter(Visitor):
             value = self.evaluate(stmt.initializer)
         self.environment.define(stmt.name.lexeme, value)
         return None
-    
+
     def visit_while_stmt(self, stmt):
         while self.is_truthy(self.evaluate(stmt.condition)):
             self.execute(stmt.body)
@@ -124,7 +171,11 @@ class Interpreter(Visitor):
     
     def visit_assign_expr(self, expr):
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+        distance = self.locals.get(expr)
+        if distance is not None:
+            self.environment.assign_at(expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
         return value
     
     def visit_binary_expr(self, expr):
@@ -158,7 +209,8 @@ class Interpreter(Visitor):
                 if isinstance(left, float) and isinstance(right, float):
                     return left + right
                 # Allow concatenation if both operands are strings
-                if isinstance(left, str) and isinstance(right, str):
+                if isinstance(left, str) or isinstance(right, str):
+                    return str(left) + str(right)
                     return left + right
                 # Otherwise, throw a runtime error.
                 raise RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
@@ -197,8 +249,14 @@ class Interpreter(Visitor):
         return None
     
     def visit_variable_expr(self, expr):
-        return self.environment.get(expr.name)
+        return self.lookup_variable(expr.name, expr)
     
+    def lookup_variable(self, name, expr):
+        distance = self.locals.get(expr)
+        if distance is not None:
+            return self.environment.get_at(distance, name.lexeme)
+        return self.globals.get(name)
+
     def check_number_operand(self, operator, operand):
         if isinstance(operand, float):
             return None

@@ -1,7 +1,7 @@
 from typing import List
 from app.token import Token
 from app.token_type import TokenType
-from app.expr import Literal, Grouping, Unary, Binary, Comma, Conditional, Variable, Assign, Logical, Call
+from app.expr import Literal, Grouping, Unary, Binary, Comma, Variable, Assign, Logical, Call
 from app.stmt import Print, Expression, Var, Block, If, While, Function, Return
 
 
@@ -16,12 +16,11 @@ class Parser:
         pass
 
     def parseExpression(self):
-        # This method is a wrapper to handle parsing errors.
         try:
             return self.expression()
         except Parser.ParserError:
+            # Handle parser errors here if needed.
             return None
-        # Handle parser errors here if needed.
 
     def parseStatements(self):
         statements = []
@@ -31,7 +30,8 @@ class Parser:
 
     def expression(self):
         return self.assignment()
-    
+        # return self.comma()
+   
     def declaration(self):
         try:
             if self.match(TokenType.FUN):
@@ -42,12 +42,33 @@ class Parser:
         except Parser.ParserError:
             self.synchronize()
             return None
-    
+
+    def assignment(self):
+        expr = self.or_()
+        if self.match(TokenType.EQUAL):
+            equals = self.previous()
+            value = self.assignment()
+            if isinstance(expr, Variable):
+                name = expr.name
+                return Assign(name, value)
+            self.error(equals, "Invalid assignment target.")
+        return expr
+
+    def var_declaration(self):
+        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
+        initializer = None
+        if self.match(TokenType.EQUAL):
+            initializer = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
+        return Var(name, initializer)
+
     def statement(self):
         if self.match(TokenType.FOR):
             return self.for_statement()
         if self.match(TokenType.IF):
             return self.if_statement()
+        if self.match(TokenType.QUESTION):
+            return self.ternary_conditional()
         if self.match(TokenType.PRINT):
             return self.print_statement()
         if self.match(TokenType.RETURN):
@@ -57,49 +78,41 @@ class Parser:
         if self.match(TokenType.LEFT_BRACE):
             return Block(self.block())
         return self.expression_statement()
-    
+
     def for_statement(self):
         # Consume '(' after 'for'.
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.")
-        
         # Parse initializer.
         if self.match(TokenType.SEMICOLON):
             initializer = None
         elif self.match(TokenType.VAR):
             initializer = self.var_declaration()
         else:
-            initializer = self.expression_statement()
-        
+            initializer = self.expression_statement()        
         # Parse condition.
         condition = None
         if not self.check(TokenType.SEMICOLON):
             condition = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.")
-        
         # Parse increment.
         increment = None
         if not self.check(TokenType.RIGHT_PAREN):
             increment = self.expression()
         self.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.")
-        
         # Parse the body.
         body = self.statement()
-        
         # If there is an increment, execute it after each iteration.
         if increment is not None:
             body = Block([body, Expression(increment)])
-        
         # If no condition was specified, default to 'true'.
         if condition is None:
             condition = Literal(True)
-        
         # Build the while loop using the condition and body.
         body = While(condition, body)
-        
         # If there is an initializer, execute it before the loop.
         if initializer is not None:
             body = Block([initializer, body])
-        
+
         return body
 
     def if_statement(self):
@@ -110,6 +123,14 @@ class Parser:
         else_branch = None
         if self.match(TokenType.ELSE):
             else_branch = self.statement()
+        return If(condition, then_branch, else_branch)
+   
+    def ternary_conditional(self):
+        condition = self.previous_previous()
+        then_branch = self.expression()
+        self.consume(TokenType.COLON, "Expect ':' after if expression.")
+        else_branch = self.expression()
+        self.consume(TokenType.SEMICOLON, "Expect ';' after else expression.")
         return If(condition, then_branch, else_branch)
     
     def print_statement(self):
@@ -124,14 +145,6 @@ class Parser:
             value = self.expression()
         self.consume(TokenType.SEMICOLON, "Expect ';' after return value.")
         return Return(keyword, value)
-    
-    def var_declaration(self):
-        name = self.consume(TokenType.IDENTIFIER, "Expect variable name.")
-        initializer = None
-        if self.match(TokenType.EQUAL):
-            initializer = self.expression()
-        self.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.")
-        return Var(name, initializer)
     
     def while_statement(self):
         self.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.")
@@ -167,17 +180,6 @@ class Parser:
             statements.append(self.declaration())
         self.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.")
         return statements
-    
-    def assignment(self):
-        expr = self.or_()
-        if self.match(TokenType.EQUAL):
-            equals = self.previous()
-            value = self.assignment()
-            if isinstance(expr, Variable):
-                name = expr.name
-                return Assign(name, value)
-            self.error(equals, "Invalid assignment target.")
-        return expr
 
     def conditional(self):
         # Start with a comma expression (the next-higher precedence)
@@ -186,11 +188,12 @@ class Parser:
             then_branch = self.expression()  # Parse the true branch
             self.consume(TokenType.COLON, "Expect ':' after expression.")
             else_branch = self.conditional() # Right associativity: recursively parse the else branch.
-            expr = Conditional(expr, then_branch, else_branch)
+            expr = If(expr, then_branch, else_branch)
         return expr
 
     def comma(self):
         expr = self.equality()
+        # expr = self.assignment()
         while self.match(TokenType.COMMA):
             operator = self.previous()
             right = self.equality()
@@ -321,6 +324,9 @@ class Parser:
     
     def previous(self):
         return self.tokens[self.current - 1]
+    
+    def previous_previous(self):
+        return self.tokens[self.current - 2] if self.current > 1 else None
     
     def error(self, token, message):
         self.lox.error(token.line, message)

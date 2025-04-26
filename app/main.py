@@ -85,12 +85,14 @@ class PyLox:
                 print(token)
             if lox.had_error:
                 exit(65)
+
         elif command == "parse":
             # Parse the expression using the parser.
             expression = lox.runParser(file_contents)
             if lox.had_error:
                 exit(65)
             print(AstPrinter().print(expression))
+
         elif command == "evaluate":
             # Evaluate the expression using the interpreter.
             try:
@@ -98,6 +100,14 @@ class PyLox:
             except RuntimeError as error:
                 lox.runtime_error(error)
                 exit(70)
+
+        elif command == "resolve":
+            # Resolve the expression using the resolver.
+            # pass
+            # Placeholder for the resolver's output
+            if lox.had_error:
+                exit(65)
+
         elif command == "run":
             # Run the interpreter on the provided source code.
             try:
@@ -105,7 +115,7 @@ class PyLox:
             except RuntimeError as error:
                 lox.runtime_error(error)
                 exit(70)
-        
+
         else:
             print("EOF  null")
             exit(0)
