@@ -73,7 +73,7 @@ class Interpreter(Visitor):
     def __init__(self):
         self.globals = Environment()
         self.environment = self.globals
-        self.locals = {}
+        self.locals = {}  # Dictionary to store resolved variables
         self.globals.define("clock", Clock())
     
     def interpretExpression(self, expr):

@@ -1,6 +1,6 @@
 import sys
 # Assuming the structure from the context files:
-from app.expr import Visitor as ExprVisitor, Expr  # Import base Visitor and Expr types if needed later
+from app.expr import Visitor as ExprVisitor, Expr, Variable  # Import base Visitor and Expr types if needed later
 from app.stmt import Visitor as StmtVisitor, Stmt  # Import base Visitor and Stmt types if needed later
 from app.interpreter import Interpreter
 from app.token import Token # Often needed when dealing with AST nodes
@@ -8,7 +8,7 @@ from app.main import PyLox # Assuming PyLox is the main class for error handling
 
 # Potentially needed for resolver state, analogous to Java imports:
 from typing import List, Dict, Deque, Optional, Union # Deque can act as a stack
-# from enum import Enum, auto # If defining specific states/types
+from enum import Enum, auto # If defining specific states/types
 
 # Note: Python doesn't have direct equivalents for Java's HashMap, List, Map, Stack
 # built-ins or standard libraries are used:
@@ -24,7 +24,7 @@ class Resolver(ExprVisitor, StmtVisitor):
     def __init__(self, interpreter: Interpreter):
         self.interpreter: Interpreter = interpreter
         # Add any other necessary state for the resolver, e.g., scopes stack
-        self.scopes: Deque[Dict[str, bool]] = collections.deque()
+        self.scopes: List[Dict[str, bool]] = []
         self.current_function = FunctionType.NONE
 
     class FunctionType(Enum):
@@ -36,9 +36,11 @@ class Resolver(ExprVisitor, StmtVisitor):
     # --- Implement Expr.Visitor methods ---
     def visit_variable_expr(self, expr: 'Variable') -> None:
         # Resolver logic for variable expressions
-        if not self.scopes and self.scopes[-1].get(expr.name.lexeme) is False:
-            # Handle error: variable used before declaration
-            PyLox.error(expr.name, "Cannot read local variable in its own initializer.")
+        if self.scopes and expr.name.lexeme in self.scopes[-1]:
+            if not self.scopes[-1][expr.name.lexeme]:
+                raise Exception(
+                    f"Can't read local variable in its own initializer: {expr.name.lexeme}"
+                )
         self.resolve_local(expr, expr.name)
         return None
     

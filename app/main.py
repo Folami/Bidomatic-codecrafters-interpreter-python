@@ -50,7 +50,11 @@ class PyLox:
         tokens = self.runScanner(source)
         parser = Parser(tokens, self)
         statements = parser.parseStatements()
-        self.runResolver(source)
+        if self.had_error:
+            exit(65)
+        # Create resolver and resolve statements before interpreting
+        resolver = Resolver(self.interpreter)
+        resolver.resolve(statements)  # Pass statements directly instead of source
         if self.had_error:
             exit(65)
         self.interpreter.interpretStatements(statements)
