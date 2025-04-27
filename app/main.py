@@ -35,7 +35,16 @@ class PyLox:
         if self.had_error:
             exit(65)
         self.interpreter.interpretExpression(expression)
-        # Placeholder for the interpreter's output
+        
+    def runResolver(self, source: str):
+        tokens = self.runScanner(source)
+        parser = Parser(tokens, self)
+        statements = parser.parseStatements()
+        if self.had_error:
+            exit(65)
+        resolver = Resolver(self.interpreter)
+        resolver.resolve(statements)
+        
 
     def runPyLox(self, source: str):
         tokens = self.runScanner(source)
@@ -104,10 +113,11 @@ class PyLox:
 
         elif command == "resolve":
             # Resolve the expression using the resolver.
-            # pass
-            # Placeholder for the resolver's output
-            if lox.had_error:
-                exit(65)
+            try:
+                lox.runResolver(file_contents)
+            except RuntimeError as error:
+                lox.runtime_error(error)
+                exit(70)
 
         elif command == "run":
             # Run the interpreter on the provided source code.
