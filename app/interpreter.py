@@ -182,50 +182,47 @@ class Interpreter(Visitor):
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
-        match expr.operator.type:
-            case TokenType.GREATER:
-                self.check_number_operands(expr.operator, left, right)
-                return float(left) > float(right)
-            case TokenType.GREATER_EQUAL:
-                self.check_number_operands(expr.operator, left, right)
-                return float(left) >= float(right)
-            case TokenType.LESS:
-                self.check_number_operands(expr.operator, left, right)
-                return float(left) < float(right)
-            case TokenType.LESS_EQUAL:
-                self.check_number_operands(expr.operator, left, right)
-                return float(left) <= float(right)
-            case TokenType.BANG_EQUAL:
-                return not self.is_equal(left, right)
-            case TokenType.EQUAL_EQUAL:
-                return self.is_equal(left, right)
-            case TokenType.COMMA:
-                return left, right
-            case TokenType.MINUS:
-                self.check_number_operands(expr.operator, left, right)
-                return float(left) - float(right)
-            case TokenType.PLUS:
-                # Allow addition if both operands are numbers
-                if isinstance(left, float) and isinstance(right, float):
-                    return left + right
-                # Allow concatenation if both operands are strings
-                if isinstance(left, str) or isinstance(right, str):
-                    return str(left) + str(right)
-                    return left + right
-                # Otherwise, throw a runtime error.
-                raise RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
-                # If either operand is a string, convert both to strings and concatenate.
-                if isinstance(left, str) or isinstance(right, str):
-                    return str(left) + str(right)
-            case TokenType.SLASH:
-                self.check_number_operands(expr.operator, left, right)
-                if float(right) == 0.0:
-                    raise RuntimeError(expr.operator, "Division by zero.")
-                return float(left) / float(right)
-            case TokenType.STAR:
-                self.check_number_operands(expr.operator, left, right)
-                return float(left) * float(right)
-            
+        if expr.operator.type == TokenType.PLUS:
+            # Check types for addition
+            if isinstance(left, float) and isinstance(right, float):
+                return float(left + right)
+            elif isinstance(left, str) and isinstance(right, str):
+                return str(left + right)
+            # If types don't match or aren't supported, raise runtime error
+            raise RuntimeError(expr.operator, 
+                "Operands must be two numbers or two strings.")
+        
+        # Handle other operators
+        if expr.operator.type == TokenType.MINUS:
+            self.check_number_operands(expr.operator, left, right)
+            return float(left - right)
+        if expr.operator.type == TokenType.GREATER:
+            self.check_number_operands(expr.operator, left, right)
+            return float(left) > float(right)
+        if expr.operator.type == TokenType.GREATER_EQUAL:
+            self.check_number_operands(expr.operator, left, right)
+            return float(left) >= float(right)
+        if expr.operator.type == TokenType.LESS:
+            self.check_number_operands(expr.operator, left, right)
+            return float(left) < float(right)
+        if expr.operator.type == TokenType.LESS_EQUAL:
+            self.check_number_operands(expr.operator, left, right)
+            return float(left) <= float(right)
+        if expr.operator.type == TokenType.BANG_EQUAL:
+            return not self.is_equal(left, right)
+        if expr.operator.type == TokenType.EQUAL_EQUAL:
+            return self.is_equal(left, right)
+        if expr.operator.type == TokenType.COMMA:
+            return left, right
+        if expr.operator.type == TokenType.SLASH:
+            self.check_number_operands(expr.operator, left, right)
+            if float(right) == 0.0:
+                raise RuntimeError(expr.operator, "Division by zero.")
+            return float(left) / float(right)
+        if expr.operator.type == TokenType.STAR:
+            self.check_number_operands(expr.operator, left, right)
+            return float(left) * float(right)
+    
     def visit_call_expr(self, expr):
         callee = self.evaluate(expr.callee)
         arguments = []
