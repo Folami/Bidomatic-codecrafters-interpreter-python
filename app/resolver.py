@@ -37,6 +37,11 @@ class Resolver(ExprVisitor, StmtVisitor):
         # Add any other necessary state for the resolver, e.g., scopes stack
         self.scopes: List[Dict[str, bool]] = []
         self.current_function = FunctionType.NONE
+        self.lox = None  # Will store reference to PyLox instance
+
+    def set_lox(self, lox):
+        # Allow setting the PyLox instance for error reporting
+        self.lox = lox
 
     def resolve(self, element):
         # If element is a list, iterate through its items.
@@ -58,9 +63,16 @@ class Resolver(ExprVisitor, StmtVisitor):
     # --- Implement Expr.Visitor methods ---
     def visit_variable_expr(self, expr: 'Variable') -> None:
         # Resolver logic for variable expressions
-        if self.scopes and self.scopes[-1].get(expr.name.lexeme) is False:
-            # Report an error using the PyLox class's error method
-            PyLox.error(expr.name, "Can't read local variable in its own initializer.")
+        if self.scopes and expr.name.lexeme in self.scopes[-1]:
+            if self.scopes[-1].get(expr.name.lexeme) is False:
+                # Variable exists in current scope but isn't defined yet
+                if self.lox:
+                    self.lox.error(expr.name, 
+                        "Can't read local variable in its own initializer.")
+                else:
+                    # Fallback if lox instance not set
+                    raise Exception(
+                        f"Can't read local variable '{expr.name.lexeme}' in its own initializer.")
         self.resolve_local(expr, expr.name)
         return None
     
@@ -115,6 +127,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         # Resolver logic for variable declarations
         self.declare(stmt.name)
         if stmt.initializer is not None:
+            # Resolve the initializer first
             self.resolve(stmt.initializer)
         self.define(stmt.name)
         return None

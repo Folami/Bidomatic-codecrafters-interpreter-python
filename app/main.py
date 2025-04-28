@@ -47,7 +47,8 @@ class PyLox:
     def runResolver(self, statements):
         if statements is not None:
             resolver = Resolver(self.interpreter)
-            resolver.resolve(statements)  # This will now properly handle the list of statements
+            resolver.set_lox(self)  # Pass PyLox instance to resolver
+            resolver.resolve(statements)
         return statements
 
     def runPyLox(self, source: str):
@@ -65,16 +66,17 @@ class PyLox:
             self.runtime_error(error)
             exit(70)  # Exit with code 70 for runtime errors
 
-    def error(self, token_or_line, message) -> None:
-        # If token_or_line is an int, treat it as a line number.
+    def error(self, token_or_line, message: str) -> None:
+        # If token_or_line is an int, treat it as a line number
         if isinstance(token_or_line, int):
             self.report(token_or_line, "", message)
         else:
-            # Otherwise, assume it's a token.
+            # Otherwise, assume it's a token
             if token_or_line.type == TokenType.EOF:
                 self.report(token_or_line.line, " at end", message)
             else:
-                self.report(token_or_line.line, f" at '{token_or_line.lexeme}'", message)
+                self.report(token_or_line.line, 
+                    f" at '{token_or_line.lexeme}'", message)
 
     def report(self, line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)
