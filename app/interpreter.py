@@ -173,7 +173,7 @@ class Interpreter(Visitor):
         value = self.evaluate(expr.value)
         distance = self.locals.get(id(expr))
         if distance is not None:
-            self.environment.assign_at(expr.name, value)
+            self.environment.assign_at(distance, expr.name, value)
         else:
             self.globals.assign(expr.name, value)
         return value
