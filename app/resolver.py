@@ -58,11 +58,9 @@ class Resolver(ExprVisitor, StmtVisitor):
     # --- Implement Expr.Visitor methods ---
     def visit_variable_expr(self, expr: 'Variable') -> None:
         # Resolver logic for variable expressions
-        if self.scopes and expr.name.lexeme in self.scopes[-1]:
-            if not self.scopes[-1][expr.name.lexeme]:
-                raise Exception(
-                    f"Can't read local variable in its own initializer: {expr.name.lexeme}"
-                )
+        if self.scopes and self.scopes[-1].get(expr.name.lexeme) is False:
+            # Report an error using the PyLox class's error method
+            PyLox.error(expr.name, "Can't read local variable in its own initializer.")
         self.resolve_local(expr, expr.name)
         return None
     
