@@ -141,9 +141,9 @@ class Interpreter(Visitor):
     
     def visit_if_stmt(self, stmt):
         if self.is_truthy(self.evaluate(stmt.condition)):
-            self.execute(stmt.thenBranch)
-        elif stmt.elseBranch is not None:
-            self.execute(stmt.elseBranch)
+            self.execute(stmt.then_branch)
+        elif stmt.else_branch is not None:
+            self.execute(stmt.else_branch)
         return None
 
     def visit_print_stmt(self, stmt):
@@ -173,7 +173,7 @@ class Interpreter(Visitor):
         value = self.evaluate(expr.value)
         distance = self.locals.get(id(expr))
         if distance is not None:
-            self.environment.assign_at(distance, expr.name, value)
+            self.environment.assign_at(distance, expr.name, value)r
         else:
             self.globals.assign(expr.name, value)
         return value
