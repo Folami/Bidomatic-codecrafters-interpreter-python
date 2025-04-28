@@ -53,8 +53,7 @@ class PyLox:
         if self.had_error:
             exit(65)
         # Create resolver and resolve statements before interpreting
-        resolver = Resolver(self.interpreter)
-        resolver.resolve(statements)  # Pass statements directly instead of source
+        self.runResolver(source)
         if self.had_error:
             exit(65)
         self.interpreter.interpretStatements(statements)
