@@ -115,7 +115,7 @@ class Interpreter(Visitor):
         stmt.accept(self)
 
     def resolve(self, expr, depth):
-        self.locals[expr] = depth
+        self.locals[id(expr)] = depth
 
     def visit_block_stmt(self, stmt):
         self.execute_block(stmt.statements, Environment(self.environment))
@@ -252,7 +252,7 @@ class Interpreter(Visitor):
         return self.lookup_variable(expr.name, expr)
     
     def lookup_variable(self, name, expr):
-        distance = self.locals.get(expr)
+        distance = self.locals.get(id(expr))
         if distance is not None:
             return self.environment.get_at(distance, name.lexeme)
         return self.globals.get(name)
