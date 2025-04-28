@@ -7,8 +7,13 @@ from app.token_type import TokenType
 from app.interpreter import Interpreter
 from app.runtime_error import RuntimeError
 
-if TYPE_CHECKING:
+try:
     from app.resolver import Resolver
+except ImportError:
+    Resolver = None  # or define a dummy Resolver if needed
+
+if TYPE_CHECKING:
+    pass  # TYPE_CHECKING block can be left empty or used for type hints only
 
 
 class PyLox:
