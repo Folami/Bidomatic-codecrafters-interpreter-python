@@ -38,9 +38,14 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.scopes: List[Dict[str, bool]] = []
         self.current_function = FunctionType.NONE
 
-    def resolve(self, statements: List['Stmt']) -> None:
-        for statement in statements:
-            self.resolve_stmt(statement)
+    def resolve(self, element):
+        # If element is a list, iterate through its items.
+        if isinstance(element, list):
+            for item in element:
+                self.resolve(item)
+        # Otherwise, if it has an accept() method, resolve it.
+        elif hasattr(element, "accept"):
+            element.accept(self)
 
     def resolve_stmt(self, stmt: 'Stmt') -> None:
         # Call accept on the individual statement
@@ -182,10 +187,6 @@ class Resolver(ExprVisitor, StmtVisitor):
             return
         # Mark the variable as defined
         self.scopes[-1][name.lexeme] = True
-    
-    def resolve(self, node: Union[Expr, Stmt]) -> None:
-        # Generic method to start resolution on a node
-        node.accept(self)
     
     def resolve_statements(self, statements: List[Stmt]) -> None:
         # Method to resolve a list of statements
