@@ -171,7 +171,7 @@ class Interpreter(Visitor):
     
     def visit_assign_expr(self, expr):
         value = self.evaluate(expr.value)
-        distance = self.locals.get(expr)
+        distance = self.locals.get(id(expr))
         if distance is not None:
             self.environment.assign_at(expr.name, value)
         else:
