@@ -44,9 +44,10 @@ class PyLox:
             exit(65)
         self.interpreter.interpretExpression(expression)
         
-    def runResolver(self, statements):  # Change parameter to accept statements directly
-        resolver = Resolver(self.interpreter)
-        resolver.resolve(statements)
+    def runResolver(self, statements):
+        if statements is not None:
+            resolver = Resolver(self.interpreter)
+            resolver.resolve(statements)  # This will now properly handle the list of statements
         return statements
 
     def runPyLox(self, source: str):

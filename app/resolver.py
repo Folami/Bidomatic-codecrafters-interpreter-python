@@ -42,6 +42,14 @@ class Resolver(ExprVisitor, StmtVisitor):
         for statement in statements:
             self.resolve_stmt(statement)
 
+    def resolve_stmt(self, stmt: 'Stmt') -> None:
+        # Call accept on the individual statement
+        stmt.accept(self)
+
+    def resolve_expr(self, expr: 'Expr') -> None:
+        # Call accept on the individual expression
+        expr.accept(self)
+
     # --- Implement Expr.Visitor methods ---
     def visit_variable_expr(self, expr: 'Variable') -> None:
         # Resolver logic for variable expressions
