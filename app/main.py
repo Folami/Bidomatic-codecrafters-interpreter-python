@@ -49,6 +49,8 @@ class PyLox:
             resolver = Resolver(self.interpreter)
             resolver.set_lox(self)  # Pass PyLox instance to resolver
             resolver.resolve(statements)
+            if self.had_error:
+                exit(65)  # Exit with compile error code for resolution errors
         return statements
 
     def runPyLox(self, source: str):
@@ -57,16 +59,16 @@ class PyLox:
         statements = parser.parseStatements()
         if self.had_error:
             exit(65)
-        try:
-            resolver = Resolver(self.interpreter)
-            resolver.set_lox(self)  # Pass PyLox instance to resolver
-            resolver.resolve(statements)
-            if self.had_error:
-                exit(65)  # Exit with compile error code
-            self.interpreter.interpretStatements(statements)
-        except RuntimeError as error:
-            self.runtime_error(error)
-            exit(70)
+        
+        # Run resolver
+        resolver = Resolver(self.interpreter)
+        resolver.set_lox(self)
+        resolver.resolve(statements)
+        if self.had_error:
+            exit(65)  # Exit with compile error code
+        
+        # If no errors, run interpreter
+        self.interpreter.interpretStatements(statements)
 
     def error(self, token_or_line, message: str) -> None:
         # If token_or_line is an int, treat it as a line number

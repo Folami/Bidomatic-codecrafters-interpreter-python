@@ -38,10 +38,17 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.scopes: List[Dict[str, bool]] = []
         self.current_function = FunctionType.NONE
         self.lox = None  # Will store reference to PyLox instance
+        self.function_type = FunctionType.NONE
 
     def set_lox(self, lox):
         # Allow setting the PyLox instance for error reporting
         self.lox = lox
+
+    def error(self, token, message):
+        if self.lox:
+            self.lox.error(token, message)
+        else:
+            raise Exception(f"Resolver error: {message}")
 
     def resolve(self, element):
         # If element is a list, iterate through its items.
@@ -134,29 +141,27 @@ class Resolver(ExprVisitor, StmtVisitor):
         return None
     
     def visit_function_stmt(self, stmt: 'Function') -> None:
+        enclosing_function = self.function_type
+        self.function_type = FunctionType.FUNCTION
+        
         self.declare(stmt.name)
         self.define(stmt.name)
         
-        # Create new scope for function parameters
         self.begin_scope()
         # Check for duplicate parameters
         seen_params = set()
         for param in stmt.params:
             if param.lexeme in seen_params:
-                if self.lox:
-                    self.lox.error(param, 
-                        "Already a variable with this name in this scope.")
-                else:
-                    raise Exception(
-                        f"Already a parameter '{param.lexeme}' in this scope.")
+                self.error(param, "Already a variable with this name in this scope.")
             seen_params.add(param.lexeme)
             self.declare(param)
             self.define(param)
-            
-        self.resolve_statements(stmt.body)
+        
+        self.resolve(stmt.body)
         self.end_scope()
-        return None
-    
+        
+        self.function_type = enclosing_function
+
     def visit_expression_stmt(self, stmt: 'Expression') -> None:
         # Resolver logic for expression statements
         self.resolve(stmt.expression)
@@ -182,10 +187,8 @@ class Resolver(ExprVisitor, StmtVisitor):
         return None
     
     def visit_return_stmt(self, stmt: 'Return') -> None:
-        # Resolver logic for return statements
-        if self.current_function == FunctionType.NONE:
-            # Handle error: return statement outside of function
-            PyLox.error(stmt.keyword, "Cannot return from top-level code.")
+        if self.function_type == FunctionType.NONE:
+            self.error(stmt.keyword, "Cannot return from top-level code.")
         if stmt.value is not None:
             self.resolve(stmt.value)
         return None
@@ -203,16 +206,10 @@ class Resolver(ExprVisitor, StmtVisitor):
         # Skip declaration check for global scope
         if not self.scopes:
             return
-            
         scope = self.scopes[-1]
         # Check for redeclaration in the current (local) scope
         if name.lexeme in scope:
-            if self.lox:
-                self.lox.error(name, 
-                    "Already a variable with this name in this scope.")
-            else:
-                raise Exception(
-                    f"Already a variable '{name.lexeme}' in this scope.")
+            self.error(name, "Already a variable with this name in this scope.")
         # Mark as declared but not defined
         scope[name.lexeme] = False
     
