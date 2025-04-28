@@ -197,6 +197,7 @@ class Interpreter(Visitor):
             self.check_number_operands(expr.operator, left, right)
             return float(left - right)
         if expr.operator.type == TokenType.GREATER:
+
             self.check_number_operands(expr.operator, left, right)
             return float(left) > float(right)
         if expr.operator.type == TokenType.GREATER_EQUAL:
