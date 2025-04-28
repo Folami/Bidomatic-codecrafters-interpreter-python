@@ -57,14 +57,16 @@ class PyLox:
         statements = parser.parseStatements()
         if self.had_error:
             exit(65)
-        statements = self.runResolver(statements)
-        if self.had_error:
-            exit(65)
         try:
+            resolver = Resolver(self.interpreter)
+            resolver.set_lox(self)  # Pass PyLox instance to resolver
+            resolver.resolve(statements)
+            if self.had_error:
+                exit(65)  # Exit with compile error code
             self.interpreter.interpretStatements(statements)
         except RuntimeError as error:
             self.runtime_error(error)
-            exit(70)  # Exit with code 70 for runtime errors
+            exit(70)
 
     def error(self, token_or_line, message: str) -> None:
         # If token_or_line is an int, treat it as a line number

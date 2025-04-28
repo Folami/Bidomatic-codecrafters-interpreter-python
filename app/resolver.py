@@ -134,10 +134,27 @@ class Resolver(ExprVisitor, StmtVisitor):
         return None
     
     def visit_function_stmt(self, stmt: 'Function') -> None:
-        # Resolver logic for function declarations
         self.declare(stmt.name)
         self.define(stmt.name)
-        self.resolve_function(stmt, FunctionType.FUNCTION)
+        
+        # Create new scope for function parameters
+        self.begin_scope()
+        # Check for duplicate parameters
+        seen_params = set()
+        for param in stmt.params:
+            if param.lexeme in seen_params:
+                if self.lox:
+                    self.lox.error(param, 
+                        "Already a variable with this name in this scope.")
+                else:
+                    raise Exception(
+                        f"Already a parameter '{param.lexeme}' in this scope.")
+            seen_params.add(param.lexeme)
+            self.declare(param)
+            self.define(param)
+            
+        self.resolve_statements(stmt.body)
+        self.end_scope()
         return None
     
     def visit_expression_stmt(self, stmt: 'Expression') -> None:
@@ -183,14 +200,20 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.scopes.pop()
     
     def declare(self, name: Token) -> None:
-        # Declare a variable in the current scope
+        # Skip declaration check for global scope
         if not self.scopes:
             return
+            
         scope = self.scopes[-1]
-        # Check if the variable is already declared in this scope
+        # Check for redeclaration in the current (local) scope
         if name.lexeme in scope:
-            # Handle error: variable already declared in this scope
-            PyLox.error(name, "Variable with this name already declared in this scope.")
+            if self.lox:
+                self.lox.error(name, 
+                    "Already a variable with this name in this scope.")
+            else:
+                raise Exception(
+                    f"Already a variable '{name.lexeme}' in this scope.")
+        # Mark as declared but not defined
         scope[name.lexeme] = False
     
     def define(self, name: Token) -> None:
