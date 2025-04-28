@@ -72,7 +72,8 @@ class Resolver(ExprVisitor, StmtVisitor):
                 else:
                     # Fallback if lox instance not set
                     raise Exception(
-                        f"Can't read local variable '{expr.name.lexeme}' in its own initializer.")
+                        f"Can't read local variable '{expr.name.lexeme}' in its own initializer."
+                    )
         self.resolve_local(expr, expr.name)
         return None
     
