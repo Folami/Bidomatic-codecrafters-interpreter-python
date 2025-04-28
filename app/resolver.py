@@ -200,9 +200,7 @@ class Resolver(ExprVisitor, StmtVisitor):
                 # Variable found in scope
                 self.interpreter.resolve(expr, len(self.scopes) - 1 - i)
                 return
-        # Variable not found in any scope
-        PyLox.error(name, "Undefined variable.")
-
+        
     def resolve_function(self, function: 'Function', type: FunctionType) -> None:
         # Resolve a function declaration
         enclosing_function = self.current_function
