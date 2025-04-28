@@ -1,11 +1,14 @@
 import sys
+from typing import TYPE_CHECKING
 from app.scanner import Scanner
 from app.parser import Parser
-from app.resolver import Resolver
 from app.ast_printer import AstPrinter
 from app.token_type import TokenType
 from app.interpreter import Interpreter
 from app.runtime_error import RuntimeError
+
+if TYPE_CHECKING:
+    from app.resolver import Resolver
 
 
 class PyLox:
@@ -36,15 +39,10 @@ class PyLox:
             exit(65)
         self.interpreter.interpretExpression(expression)
         
-    def runResolver(self, source: str):
-        tokens = self.runScanner(source)
-        parser = Parser(tokens, self)
-        statements = parser.parseStatements()
-        if self.had_error:
-            exit(65)
+    def runResolver(self, statements):  # Change parameter to accept statements directly
         resolver = Resolver(self.interpreter)
         resolver.resolve(statements)
-        
+        return statements
 
     def runPyLox(self, source: str):
         tokens = self.runScanner(source)
@@ -52,13 +50,12 @@ class PyLox:
         statements = parser.parseStatements()
         if self.had_error:
             exit(65)
-        # Create resolver and resolve statements before interpreting
-        self.runResolver(source)
+        # Pass statements directly to runResolver
+        statements = self.runResolver(statements)
         if self.had_error:
             exit(65)
         self.interpreter.interpretStatements(statements)
-        # Placeholder for the interpreter's output
-
+        
 
     def error(self, token_or_line, message) -> None:
         # If token_or_line is an int, treat it as a line number.
@@ -118,7 +115,12 @@ class PyLox:
         elif command == "resolve":
             # Resolve the expression using the resolver.
             try:
-                lox.runResolver(file_contents)
+                tokens = lox.runScanner(file_contents)
+                parser = Parser(tokens, lox)
+                statements = parser.parseStatements()
+                if lox.had_error:
+                    exit(65)
+                lox.runResolver(statements)
             except RuntimeError as error:
                 lox.runtime_error(error)
                 exit(70)

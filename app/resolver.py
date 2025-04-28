@@ -7,8 +7,13 @@ from app.token import Token # Often needed when dealing with AST nodes
 from app.main import PyLox # Assuming PyLox is the main class for error handling
 
 # Potentially needed for resolver state, analogous to Java imports:
-from typing import List, Dict, Deque, Optional, Union # Deque can act as a stack
+from typing import List, Dict, Deque, Optional, Union, Any, TYPE_CHECKING # Deque can act as a stack
 from enum import Enum, auto # If defining specific states/types
+
+if TYPE_CHECKING:
+    from app.interpreter import Interpreter
+    from app.expr import Expr, Variable
+    from app.stmt import Stmt
 
 # Note: Python doesn't have direct equivalents for Java's HashMap, List, Map, Stack
 # built-ins or standard libraries are used:
@@ -17,23 +22,25 @@ from enum import Enum, auto # If defining specific states/types
 # Stack -> list (using append/pop) or collections.deque
 
 class FunctionType(Enum):
-        NONE = auto()
-        FUNCTION = auto()
-        INITIALIZER = auto()
-        METHOD = auto()
+    NONE = auto()
+    FUNCTION = auto()
+    INITIALIZER = auto()
+    METHOD = auto()
 
 class Resolver(ExprVisitor, StmtVisitor):
     """
     Analyzes variable resolution in the Lox AST before interpretation.
     Inherits from both expression and statement visitors.
     """
-    def __init__(self, interpreter: Interpreter):
+    def __init__(self, interpreter: 'Interpreter'):
         self.interpreter: Interpreter = interpreter
         # Add any other necessary state for the resolver, e.g., scopes stack
         self.scopes: List[Dict[str, bool]] = []
         self.current_function = FunctionType.NONE
 
-    
+    def resolve(self, statements: List['Stmt']) -> None:
+        for statement in statements:
+            self.resolve_stmt(statement)
 
     # --- Implement Expr.Visitor methods ---
     def visit_variable_expr(self, expr: 'Variable') -> None:
