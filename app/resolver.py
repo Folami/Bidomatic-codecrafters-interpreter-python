@@ -16,6 +16,12 @@ from enum import Enum, auto # If defining specific states/types
 # List -> list
 # Stack -> list (using append/pop) or collections.deque
 
+class FunctionType(Enum):
+        NONE = auto()
+        FUNCTION = auto()
+        INITIALIZER = auto()
+        METHOD = auto()
+
 class Resolver(ExprVisitor, StmtVisitor):
     """
     Analyzes variable resolution in the Lox AST before interpretation.
@@ -27,11 +33,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.scopes: List[Dict[str, bool]] = []
         self.current_function = FunctionType.NONE
 
-    class FunctionType(Enum):
-        NONE = auto()
-        FUNCTION = auto()
-        INITIALIZER = auto()
-        METHOD = auto()
+    
 
     # --- Implement Expr.Visitor methods ---
     def visit_variable_expr(self, expr: 'Variable') -> None:
