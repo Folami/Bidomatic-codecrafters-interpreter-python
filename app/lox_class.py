@@ -27,7 +27,7 @@ class LoxClass(LoxCallable):
         return self.name
 
     # Placeholder for potential future methods like findMethod, arity, call, etc.
-    def find_method(self, name: str) -> Optional['LoxFunction']:
+    def find_method(self, name: str) -> ['LoxFunction']:
         """
         Finds a method by name in the class.
         Args:
