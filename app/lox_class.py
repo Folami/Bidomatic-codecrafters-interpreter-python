@@ -7,18 +7,14 @@ from app.lox_instance import LoxInstance
 class LoxClass(LoxCallable):
     """Represents a Lox class definition at runtime."""
 
-    def __init__(self, name: str, methods: dict = None):
+    def __init__(self, name: str, methods: dict):
         """
-        Initializes a LoxClass
+        Initializes a LoxClass.
         Args:
             name: The name of the class.
         """
-        # 'final' in Java implies immutability after construction.
-        # Python doesn't have strict 'final', but we store the name.
-        # Conventionally, attributes intended to be read-only might
-        # start with an underscore, but 'name' is likely public API.
         self.name: str = name
-        self.methods: dict = {}
+        self.methods: dict = methods  # Store methods dictionary
 
     def __str__(self) -> str:
         """
@@ -27,8 +23,7 @@ class LoxClass(LoxCallable):
         """
         return self.name
 
-    # Placeholder for potential future methods like findMethod, arity, call, etc.
-    def find_method(self, name: str) -> ['LoxFunction']:
+    def get_method(self, name):
         """
         Finds a method by name in the class.
         Args:
@@ -36,27 +31,18 @@ class LoxClass(LoxCallable):
         Returns:
             The method if found, None otherwise.
         """
-        if name in self.methods:
-            return self.methods[name]
+        if name.lexeme in self.methods:
+            return self.methods[name.lexeme]
         return None
     
-    def arity(self) -> int:
-        # Typically 0 for the class constructor itself if called directly
-        # Or depends on the initializer method
-        initializer = self.find_method("init")
-        if initializer is not None:
-            return initializer.arity()
-        return 0
-    
-    def call(self, interpreter: 'Interpreter', arguments: list[Any]) -> Any:
-        # Logic for creating an instance
+    def call(self, interpreter, arguments):
+        """
+        Calls the class to create an instance.
+        Args:
+            interpreter: The interpreter instance.
+            arguments: The arguments for the call.
+        Returns:
+            The created instance.
+        """
         instance = LoxInstance(self)
-        initializer = self.find_method("init")
-        if initializer is not None:
-            initializer.bind(instance).call(interpreter, arguments)
         return instance
-
-# Example Usage (optional):
-# if __name__ == '__main__':
-#     my_class = LoxClass("MyExampleClass")
-#     print(my_class)  # Output: MyExampleClass

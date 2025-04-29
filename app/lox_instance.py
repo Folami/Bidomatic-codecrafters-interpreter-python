@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     # This helps type checkers find LoxClass without causing circular imports at runtime
     from app.lox_class import LoxClass # Adjust path as needed
 
+from .lox_function import LoxFunction
+from .runtime_error import RuntimeError
 
 class LoxInstance:
     """Represents an instance of a Lox class."""
@@ -24,20 +26,20 @@ class LoxInstance:
         """
         # Python doesn't have strict private. Convention uses a leading underscore
         # to indicate an attribute is intended for internal use.
-        self._klass: 'LoxClass' = klass
+        self.klass = klass
         # Instances need fields to store their state. This corresponds to the
         # HashMap often used in the Java version.
-        self._fields: Dict[str, Any] = {}
+        self.fields = {}
 
     def get(self, name: 'Token'): # Assuming Token is used for field names
         """Gets a field or method from the instance."""
         # Check instance fields first
-        if name.lexeme in self._fields:
-            return self._fields[name.lexeme]
+        if name.lexeme in self.fields:
+            return self.fields[name.lexeme]
 
         # If field not found, look for a method on the class
         # This requires LoxClass to have a find_method implementation
-        method = self._klass.find_method(name.lexeme)
+        method = self.klass.get_method(name)
         if method is not None:
             # Bind 'this' (self in Python) to the instance when returning the method
             # This requires LoxFunction to have a bind method
@@ -50,7 +52,7 @@ class LoxInstance:
     def set(self, name: 'Token', value: Any):
          """Sets a field on the instance."""
          # Simply store the value in the instance's field dictionar
-         self._fields[name.lexeme] = value
+         self.fields[name.lexeme] = value
 
     def __str__(self) -> str:
         """
@@ -58,7 +60,7 @@ class LoxInstance:
         Equivalent to Java's toString().
         """
         # Access the class name via the internal attribute
-        return self._klass.name + " instance"
+        return self.klass.name + " instance"
 
 # Example Usage (requires LoxClass, Token, RuntimeError definitions):
 # class LoxClass: # Dummy for example

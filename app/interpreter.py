@@ -145,10 +145,17 @@ class Interpreter(Visitor):
 
     def visit_class_stmt(self, stmt):
         self.environment.define(stmt.name.lexeme, None)
+        
+        # Evaluate methods
         methods = {}
         for method in stmt.methods:
-            function = LoxFunction(method, self.environment, method.name.lexeme == "init")
+            function = LoxFunction(
+                method,
+                self.environment,
+                method.name.lexeme == "init"
+            )
             methods[method.name.lexeme] = function
+            
         klass = LoxClass(stmt.name.lexeme, methods)
         self.environment.assign(stmt.name, klass)
         return None

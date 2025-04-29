@@ -22,19 +22,27 @@ class LoxFunction(LoxCallable):
         return len(self.declaration.params)
 
     def call(self, interpreter, arguments):
+        # Create new environment for function execution
         environment = Environment(self.closure)
-        for i, param in enumerate(self.declaration.params):
-            environment.define(param.lexeme, arguments[i])
+        
+        # Bind parameters to arguments
+        for i in range(len(self.declaration.params)):
+            environment.define(
+                self.declaration.params[i].lexeme, 
+                arguments[i]
+            )
+        
         try:
+            # Execute function body
             interpreter.execute_block(self.declaration.body, environment)
         except Return as return_value:
             if self.is_initializer:
                 return self.closure.get_at(0, "this")
             return return_value.value
+            
         if self.is_initializer:
             return self.closure.get_at(0, "this")
         return None
 
     def __str__(self) -> str:
         return "<fn " + self.declaration.name.lexeme + ">"
-    
