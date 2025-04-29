@@ -26,11 +26,8 @@ class LoxFunction(LoxCallable):
         environment = Environment(self.closure)
         
         # Bind parameters to arguments
-        for i in range(len(self.declaration.params)):
-            environment.define(
-                self.declaration.params[i].lexeme, 
-                arguments[i]
-            )
+        for i, param in enumerate(self.declaration.params):
+            environment.define(param.lexeme, arguments[i])
         
         try:
             # Execute function body

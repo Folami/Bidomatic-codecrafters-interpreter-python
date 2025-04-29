@@ -16,51 +16,25 @@ from .lox_function import LoxFunction
 from .runtime_error import RuntimeError
 
 class LoxInstance:
-    """Represents an instance of a Lox class."""
-
-    def __init__(self, klass: 'LoxClass'):
-        """
-        Initializes a LoxInstance.
-        Args:
-            klass: The LoxClass of which this is an instance.
-        """
-        # Python doesn't have strict private. Convention uses a leading underscore
-        # to indicate an attribute is intended for internal use.
+    def __init__(self, klass):
         self.klass = klass
-        # Instances need fields to store their state. This corresponds to the
-        # HashMap often used in the Java version.
         self.fields = {}
 
-    def get(self, name: 'Token'): # Assuming Token is used for field names
-        """Gets a field or method from the instance."""
-        # Check instance fields first
+    def get(self, name):
         if name.lexeme in self.fields:
             return self.fields[name.lexeme]
 
-        # If field not found, look for a method on the class
-        # This requires LoxClass to have a find_method implementation
         method = self.klass.find_method(name.lexeme)
-        if method is not None:
-            # Bind 'this' (self in Python) to the instance when returning the method
-            # This requires LoxFunction to have a bind method
+        if method:
             return method.bind(self)
 
-        # If neither field nor method is found
-        # Assuming RuntimeError and Token classes are available
         raise RuntimeError(name, f"Undefined property '{name.lexeme}'.")
 
-    def set(self, name: 'Token', value: Any):
-         """Sets a field on the instance."""
-         # Simply store the value in the instance's field dictionar
-         self.fields[name.lexeme] = value
+    def set(self, name, value):
+        self.fields[name.lexeme] = value
 
-    def __str__(self) -> str:
-        """
-        Returns the string representation of the instance.
-        Equivalent to Java's toString().
-        """
-        # Access the class name via the internal attribute
-        return self.klass.name + " instance"
+    def __str__(self):
+        return f"{self.klass.name} instance"
 
 # Example Usage (requires LoxClass, Token, RuntimeError definitions):
 # class LoxClass: # Dummy for example

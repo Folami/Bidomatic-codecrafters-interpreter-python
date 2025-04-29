@@ -7,14 +7,14 @@ from app.lox_instance import LoxInstance
 class LoxClass(LoxCallable):
     """Represents a Lox class definition at runtime."""
 
-    def __init__(self, name: str, methods: dict):
+    def __init__(self, name: str, methods: dict = None):
         """
         Initializes a LoxClass.
         Args:
             name: The name of the class.
         """
         self.name: str = name
-        self.methods: dict = methods  # Store methods dictionary
+        self.methods: dict = methods if methods is not None else {}
 
     def __str__(self) -> str:
         """
@@ -45,6 +45,12 @@ class LoxClass(LoxCallable):
             The created instance.
         """
         instance = LoxInstance(self)
+        
+        # Look for initializer
+        initializer = self.find_method("init")
+        if initializer:
+            initializer.bind(instance).call(interpreter, arguments)
+            
         return instance
     
     def arity(self) -> int:

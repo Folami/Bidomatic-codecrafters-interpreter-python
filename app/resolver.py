@@ -225,7 +225,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         return None
     
     def visit_return_stmt(self, stmt: 'Return') -> None:
-        if self.function_type == FunctionType.NONE:
+        if self.current_function == FunctionType.NONE:
             self.error(stmt.keyword, "Cannot return from top-level code.")
         if stmt.value is not None:
             if self.current_function == FunctionType.INITIALIZER:
