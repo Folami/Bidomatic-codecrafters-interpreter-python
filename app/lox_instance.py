@@ -39,7 +39,7 @@ class LoxInstance:
 
         # If field not found, look for a method on the class
         # This requires LoxClass to have a find_method implementation
-        method = self.klass.get_method(name)
+        method = self.klass.find_method(name.lexeme)
         if method is not None:
             # Bind 'this' (self in Python) to the instance when returning the method
             # This requires LoxFunction to have a bind method
