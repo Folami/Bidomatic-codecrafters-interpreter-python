@@ -6,7 +6,7 @@ from app.lox_callable import LoxCallable
 class LoxClass(LoxCallable):
     """Represents a Lox class definition at runtime."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, methods: dict = None):
         """
         Initializes a LoxClass.
         Args:
