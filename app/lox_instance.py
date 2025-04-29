@@ -49,7 +49,7 @@ class LoxInstance:
 
     def set(self, name: 'Token', value: Any):
          """Sets a field on the instance."""
-         # Simply store the value in the instance's field dictionary
+         # Simply store the value in the instance's field dictionar
          self._fields[name.lexeme] = value
 
     def __str__(self) -> str:
