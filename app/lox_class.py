@@ -46,3 +46,12 @@ class LoxClass(LoxCallable):
         """
         instance = LoxInstance(self)
         return instance
+    
+    def arity(self) -> int:
+        """
+        Returns the number of parameters in the class constructor.
+        """
+        initializer = self.find_method("init")
+        if initializer is None:
+            return 0
+        return initializer.arity()
