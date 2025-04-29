@@ -17,13 +17,10 @@ if TYPE_CHECKING:
 
 
 class PyLox:
-    # A static interpreter reused across calls.
-    interpreter = Interpreter()
-    # A static instance of the PyLox class.
     def __init__(self):
         self.had_error = False
-        self.had_runtime_error = False
-
+        self.interpreter = Interpreter()
+        
     def runScanner(self, source: str):
         scanner = Scanner(source, self)
         tokens = scanner.scan_tokens()
@@ -60,27 +57,27 @@ class PyLox:
         if self.had_error:
             exit(65)
         
-        # Run resolver
+        # Run resolver before interpretation
         resolver = Resolver(self.interpreter)
         resolver.set_lox(self)
-        resolver.resolve(statements)
-        if self.had_error:
-            exit(65)  # Exit with compile error code
-        
-        # If no errors, run interpreter
-        self.interpreter.interpretStatements(statements)
+        try:
+            resolver.resolve(statements)
+            if self.had_error:
+                exit(65)
+            self.interpreter.interpretStatements(statements)
+        except RuntimeError as error:
+            self.runtime_error(error)
+            exit(70)
 
-    def error(self, token_or_line, message: str) -> None:
-        # If token_or_line is an int, treat it as a line number
-        if isinstance(token_or_line, int):
-            self.report(token_or_line, "", message)
+    def error(self, token, message: str):
+        if isinstance(token, int):  # Line number
+            self.report(token, "", message)
         else:
-            # Otherwise, assume it's a token
-            if token_or_line.type == TokenType.EOF:
-                self.report(token_or_line.line, " at end", message)
+            if token.type == TokenType.EOF:
+                self.report(token.line, " at end", message)
             else:
-                self.report(token_or_line.line, 
-                    f" at '{token_or_line.lexeme}'", message)
+                self.report(token.line, f" at '{token.lexeme}'", message)
+        self.had_error = True
 
     def report(self, line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)

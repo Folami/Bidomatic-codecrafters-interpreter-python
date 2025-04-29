@@ -52,12 +52,3 @@ class LoxClass(LoxCallable):
             initializer.bind(instance).call(interpreter, arguments)
             
         return instance
-    
-    def arity(self) -> int:
-        """
-        Returns the number of parameters in the class constructor.
-        """
-        initializer = self.find_method("init")
-        if initializer is None:
-            return 0
-        return initializer.arity()
