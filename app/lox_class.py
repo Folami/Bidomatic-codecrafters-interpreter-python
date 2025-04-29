@@ -22,6 +22,16 @@ class LoxClass(LoxCallable):
         Equivalent to Java's toString().
         """
         return self.name
+    
+    def arity(self) -> int:
+        """
+        Returns the number of parameters for the class constructor.
+        In Lox, this is always 0 since classes don't have a constructor.
+        """
+        initializer = self.find_method("init")
+        if initializer:
+            return initializer.arity()
+        return 0
 
     def find_method(self, name):
         """
