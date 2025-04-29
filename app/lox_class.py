@@ -9,7 +9,7 @@ class LoxClass(LoxCallable):
 
     def __init__(self, name: str, methods: dict = None):
         """
-        Initializes a LoxClass.
+        Initializes a LoxClass
         Args:
             name: The name of the class.
         """
