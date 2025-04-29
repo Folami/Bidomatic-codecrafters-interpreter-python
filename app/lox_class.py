@@ -23,7 +23,7 @@ class LoxClass(LoxCallable):
         """
         return self.name
 
-    def get_method(self, name):
+    def find_method(self, name):
         """
         Finds a method by name in the class.
         Args:
@@ -31,8 +31,8 @@ class LoxClass(LoxCallable):
         Returns:
             The method if found, None otherwise.
         """
-        if name.lexeme in self.methods:
-            return self.methods[name.lexeme]
+        if name in self.methods:
+            return self.methods[name]
         return None
     
     def call(self, interpreter, arguments):
