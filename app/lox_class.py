@@ -2,6 +2,7 @@
 # but 'typing' is good practice for type hints.
 from typing import Any # Optional: Use Any if methods might be added later
 from app.lox_callable import LoxCallable
+from app.lox_instance import LoxInstance
 
 class LoxClass(LoxCallable):
     """Represents a Lox class definition at runtime."""
