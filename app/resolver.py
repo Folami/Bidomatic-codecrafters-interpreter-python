@@ -27,6 +27,11 @@ class FunctionType(Enum):
     INITIALIZER = auto()
     METHOD = auto()
 
+class ClassType(Enum):
+    NONE = auto()
+    CLASS = auto()
+    SUBCLASS = auto()
+
 class Resolver(ExprVisitor, StmtVisitor):
     """
     Analyzes variable resolution in the Lox AST before interpretation.
@@ -37,6 +42,7 @@ class Resolver(ExprVisitor, StmtVisitor):
         # Add any other necessary state for the resolver, e.g., scopes stack
         self.scopes: List[Dict[str, bool]] = []
         self.current_function = FunctionType.NONE
+        self.current_class = ClassType.NONE
         self.lox = None  # Will store reference to PyLox instance
         self.function_type = FunctionType.NONE
 
@@ -100,14 +106,19 @@ class Resolver(ExprVisitor, StmtVisitor):
         # Resolver logic for grouping expressions
         self.resolve(expr.expression)
         return None
-    
-    def visit_call_expr(self, expr):
+
+    def visit_call_expr(self, expr: 'Call') -> None:
         # Resolver logic for call expressions
         self.resolve(expr.callee)
         for argument in expr.arguments:
             self.resolve(argument)
         return None
-    
+  
+    def visit_get_expr(self, expr: 'Get') -> None:
+        # Resolver logic for get expressions
+        self.resolve(expr.object)
+        return None
+
     def visit_literal_expr(self, expr: 'Literal') -> None:
         # Resolver logic for literal expressions
         return None
@@ -116,6 +127,19 @@ class Resolver(ExprVisitor, StmtVisitor):
         # Resolver logic for logical expressions
         self.resolve(expr.left)
         self.resolve(expr.right)
+        return None
+    
+    def visit_set_expr(self, expr: 'Set') -> None:
+        # Resolver logic for set expressions
+        self.resolve(expr.value)
+        self.resolve(expr.object)
+        return None
+    
+    def visit_this_expr(self, expr: 'This') -> None:
+        # Resolver logic for this expressions
+        if self.current_class == ClassType.NONE:
+            PyLox.error(expr.keyword, "Can't use 'this' outside of a class.")
+        self.resolve_local(expr, expr.keyword)
         return None
     
     def visit_unary_expr(self, expr):
@@ -140,13 +164,29 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.define(stmt.name)
         return None
     
+    def visit_class_stmt(self, stmt: 'Class') -> None:
+        # Resolver logic for class declarations
+        enclosing_class = self.current_class
+        self.current_class = ClassType.CLASS
+        self.declare(stmt.name)
+        self.define(stmt.name)
+        self.begin_scope()
+        self.scopes[-1]["this"] = True
+        for method in stmt.methods:
+            # Resolve class methods
+            declaration = FunctionType.METHOD
+            if method.name.lexeme == "init":
+                declaration = FunctionType.INITIALIZER
+            self.resolve_function(method, declaration)
+        self.end_scope()
+        self.current_class = enclosing_class
+        return None
+    
     def visit_function_stmt(self, stmt: 'Function') -> None:
         enclosing_function = self.function_type
         self.function_type = FunctionType.FUNCTION
-        
         self.declare(stmt.name)
         self.define(stmt.name)
-        
         self.begin_scope()
         # Check for duplicate parameters
         seen_params = set()
@@ -156,10 +196,8 @@ class Resolver(ExprVisitor, StmtVisitor):
             seen_params.add(param.lexeme)
             self.declare(param)
             self.define(param)
-        
         self.resolve(stmt.body)
         self.end_scope()
-        
         self.function_type = enclosing_function
 
     def visit_expression_stmt(self, stmt: 'Expression') -> None:
@@ -190,6 +228,8 @@ class Resolver(ExprVisitor, StmtVisitor):
         if self.function_type == FunctionType.NONE:
             self.error(stmt.keyword, "Cannot return from top-level code.")
         if stmt.value is not None:
+            if self.current_function == FunctionType.INITIALIZER:
+                PyLox.error(stmt.keyword, "Cannot return a value from an initializer.")
             self.resolve(stmt.value)
         return None
 

@@ -6,6 +6,8 @@ from app.return_exception import Return
 from app.environment import Environment
 from app.lox_callable import LoxCallable
 from app.lox_function import LoxFunction
+from app.lox_class import LoxClass
+from app.lox_instance import LoxInstance
 
 class Clock(LoxCallable):
     def arity(self) -> int:
@@ -105,6 +107,17 @@ class Interpreter(Visitor):
                 return left
         return self.evaluate(expr.right)
     
+    def visit_set_expr(self, expr):
+        object = self.evaluate(expr.object)
+        if not isinstance(object, LoxInstance):
+            raise RuntimeError(expr.name, "Only instances have fields.")
+        value = self.evaluate(expr.value)
+        object.set(expr.name, value)
+        return value
+    
+    def visit_this_expr(self, expr):
+        return self.lookup_variable(expr.keyword, expr)
+    
     def visit_grouping_expr(self, expr):
         return self.evaluate(expr.expression)
     
@@ -129,13 +142,23 @@ class Interpreter(Visitor):
                 self.execute(statement)
         finally:
             self.environment = previous
+
+    def visit_class_stmt(self, stmt):
+        self.environment.define(stmt.name.lexeme, None)
+        methods = {}
+        for method in stmt.methods:
+            function = LoxFunction(method, self.environment, method.name.lexeme == "init")
+            methods[method.name.lexeme] = function
+        klass = LoxClass(stmt.name.lexeme, methods)
+        self.environment.assign(stmt.name, klass)
+        return None
     
     def visit_expression_stmt(self, stmt):
         self.evaluate(stmt.expression)
         return None
     
     def visit_function_stmt(self, stmt):
-        function = LoxFunction(stmt, self.environment)
+        function = LoxFunction(stmt, self.environment, False)
         self.environment.define(stmt.name.lexeme, function)
         return None
     
@@ -150,6 +173,7 @@ class Interpreter(Visitor):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
         return None
+    
     
     def visit_return_stmt(self, stmt):
         value = None
@@ -234,6 +258,12 @@ class Interpreter(Visitor):
         if len(arguments) != function.arity():
             raise RuntimeError(expr.paren, f"Expected {function.arity()} arguments but got {len(arguments)}.")
         return function.call(self, arguments)
+    
+    def visit_get_expr(self, expr):
+        object = self.evaluate(expr.object)
+        if isinstance(object, LoxInstance):
+            return object.get(expr.name)
+        raise RuntimeError(expr.name, "Only instances have properties.")
     
     def visit_unary_expr(self, expr):
         right = self.evaluate(expr.right)

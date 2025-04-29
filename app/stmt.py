@@ -11,6 +11,8 @@ class Stmt:
 class Visitor:
     def visit_block_stmt(self, stmt):
         raise NotImplementedError()
+    def visit_class_stmt(self, stmt):
+        raise NotImplementedError()
     def visit_expression_stmt(self, stmt):
         raise NotImplementedError()
     def visit_function_stmt(self, stmt):
@@ -32,6 +34,14 @@ class Block(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_block_stmt(self)
+
+@dataclass
+class Class(Stmt):
+    name: Token
+    methods: List['Stmt.Function']
+
+    def accept(self, visitor):
+        return visitor.visit_class_stmt(self)
 
 @dataclass
 class Expression(Stmt):
