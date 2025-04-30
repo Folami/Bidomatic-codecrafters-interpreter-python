@@ -62,8 +62,8 @@ class Function(Stmt):
 @dataclass
 class If(Stmt):
     condition: Expr
-    thenBranch: Stmt
-    elseBranch: Stmt
+    then_branch: Stmt
+    else_branch: Stmt
 
     def accept(self, visitor):
         return visitor.visit_if_stmt(self)
