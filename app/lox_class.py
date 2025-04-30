@@ -7,12 +7,13 @@ from app.lox_instance import LoxInstance
 class LoxClass(LoxCallable):
     """Represents a Lox class definition at runtime."""
 
-    def __init__(self, name: str, methods: dict = None):
+    def __init__(self, name: str, superclass: 'LoxClass' = None, methods: dict = None):
         """
         Initializes a LoxClass.
         Args:
             name: The name of the class.
         """
+        self.superclass = superclass
         self.name: str = name
         self.methods: dict = methods if methods is not None else {}
 
@@ -43,6 +44,8 @@ class LoxClass(LoxCallable):
         """
         if name in self.methods:
             return self.methods[name]
+        if self.superclass:
+            return self.superclass.find_method(name)
         return None
     
     def call(self, interpreter, arguments):

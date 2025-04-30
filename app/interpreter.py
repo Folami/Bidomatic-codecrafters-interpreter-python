@@ -115,6 +115,15 @@ class Interpreter(Visitor):
         object.set(expr.name, value)
         return value
     
+    def visit_super_expr(self, expr):
+        distance = self.locals.get(id(expr))
+        superclass = self.environment.get_at(distance, "super")
+        object = self.environment.get_at(distance - 1, "this")
+        method = superclass.find_method(expr.method.lexeme)
+        if method is None:
+            raise RuntimeError(expr.method, "Undefined property" + expr.method.lexeme + ".")
+        return method.bind(object)
+    
     def visit_this_expr(self, expr):
         return self.lookup_variable(expr.keyword, expr)
     
@@ -144,19 +153,24 @@ class Interpreter(Visitor):
             self.environment = previous
 
     def visit_class_stmt(self, stmt):
+        superclass = None
+        if stmt.superclass is not None:
+            superclass = self.evaluate(stmt.superclass)
+            if not isinstance(superclass, LoxClass):
+                raise RuntimeError(stmt.superclass.name, "Superclass must be a class.")
         self.environment.define(stmt.name.lexeme, None)
-        
+        if superclass is not None:
+            self.environment = Environment(self.environment)
+            self.environment.define("super", superclass)
         # Evaluate methods
         methods = {}
         for method in stmt.methods:
-            function = LoxFunction(
-                method,
-                self.environment,
-                method.name.lexeme == "init"
-            )
-            methods[method.name.lexeme] = function
-            
-        klass = LoxClass(stmt.name.lexeme, methods)
+            function = LoxFunction(method, self.environment, method.name.lexeme == "init")
+            methods[method.name.lexeme] = function            
+        klass = LoxClass(stmt.name.lexeme, superclass, methods)
+        if superclass is not None:
+            self.environment = self.environment.enclosing
+        # Assign the class to the name
         self.environment.assign(stmt.name, klass)
         return None
     

@@ -133,3 +133,11 @@ parameters     → IDENTIFIER ( "," IDENTIFIER )* ;
 call           → primary ( "(" arguments? ")" | "." IDENTIFIER )* ;
 assignment     → ( call "." )? IDENTIFIER "=" assignment
                | logic_or ;
+
+classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )?
+                 "{" function* "}" ;
+
+
+primary        → "true" | "false" | "nil" | "this"
+               | NUMBER | STRING | IDENTIFIER | "(" expression ")"
+               | "super" "." IDENTIFIER ;
