@@ -36,7 +36,7 @@ class Visitor:
 
 @dataclass
 class Comma(Expr):
-    expressions: List[Expr]
+    expressions: list[Expr]
 
     def accept(self, visitor):
         return visitor.visit_comma_expr(self)
