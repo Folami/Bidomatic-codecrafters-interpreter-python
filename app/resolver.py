@@ -228,10 +228,11 @@ class Resolver(ExprVisitor, StmtVisitor):
     
     def visit_return_stmt(self, stmt: 'Return') -> None:
         if self.current_function == FunctionType.NONE:
-            self.error(stmt.keyword, "Cannot return from top-level code.")
+            self.lox.error(stmt.keyword, "Cannot return from top-level code.")
+            return None
         if stmt.value is not None:
             if self.current_function == FunctionType.INITIALIZER:
-                PyLox.error(stmt.keyword, "Cannot return a value from an initializer.")
+                self.lox.error(stmt.keyword, "Cannot return a value from an initializer.")
             self.resolve(stmt.value)
         return None
 
