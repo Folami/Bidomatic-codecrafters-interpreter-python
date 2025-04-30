@@ -70,6 +70,7 @@ class PyLox:
             exit(70)
 
     def error(self, token, message: str):
+        """Report an error at the given token."""
         if isinstance(token, int):  # Line number
             self.report(token, "", message)
         else:
