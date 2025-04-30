@@ -37,7 +37,7 @@ class ASTGenerator:
         # Generate the Stmt AST.
         stmt_types = [
             "Block      : List<Stmt> statements",
-            "Class      : Token name, Expr.Variable superclass, List<Stmt.Function> methods",
+            "Class      : Token name, Expr superclass, List<Stmt> methods",
             "Expression : Expr expression",
             "Function   : Token name, List<Token> params, List<Stmt> body",
             "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",

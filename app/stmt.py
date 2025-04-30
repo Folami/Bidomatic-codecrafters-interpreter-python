@@ -37,7 +37,7 @@ class Block(Stmt):
 @dataclass
 class Class(Stmt):
     name: Token
-    superclass: Variable
+    superclass: Expr
     methods: list[Stmt.Function]
 
     def accept(self, visitor):
