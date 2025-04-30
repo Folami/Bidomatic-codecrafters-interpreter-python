@@ -62,7 +62,7 @@ class Binary(Expr):
 class Call(Expr):
     callee: Expr
     paren: Token
-    arguments: List[Expr]
+    arguments: list[Expr]
 
     def accept(self, visitor):
         return visitor.visit_call_expr(self)
