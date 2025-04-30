@@ -186,12 +186,11 @@ class Resolver(ExprVisitor, StmtVisitor):
         return None
     
     def visit_function_stmt(self, stmt: 'Function') -> None:
-        enclosing_function = self.function_type
-        self.function_type = FunctionType.FUNCTION
+        enclosing_function = self.current_function
+        self.current_function = FunctionType.FUNCTION  # Use current_function consistently.
         self.declare(stmt.name)
         self.define(stmt.name)
         self.begin_scope()
-        # Check for duplicate parameters
         seen_params = set()
         for param in stmt.params:
             if param.lexeme in seen_params:
@@ -199,9 +198,9 @@ class Resolver(ExprVisitor, StmtVisitor):
             seen_params.add(param.lexeme)
             self.declare(param)
             self.define(param)
-        self.resolve(stmt.body)
+        self.resolve_statements(stmt.body)
         self.end_scope()
-        self.function_type = enclosing_function
+        self.current_function = enclosing_function
 
     def visit_expression_stmt(self, stmt: 'Expression') -> None:
         # Resolver logic for expression statements
