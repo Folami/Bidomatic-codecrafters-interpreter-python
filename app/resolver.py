@@ -138,7 +138,10 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_this_expr(self, expr: 'This') -> None:
         # Resolver logic for this expressions
         if self.current_class == ClassType.NONE:
-            PyLox.error(expr.keyword, "Can't use 'this' outside of a class.")
+            if self.lox:
+                self.lox.error(expr.keyword, "Can't use 'this' outside of a class.")
+            else:
+                raise RuntimeError("Can't use 'this' outside of a class.")
         self.resolve_local(expr, expr.keyword)
         return None
     
@@ -183,10 +186,22 @@ class Resolver(ExprVisitor, StmtVisitor):
         return None
     
     def visit_function_stmt(self, stmt: 'Function') -> None:
+        enclosing_function = self.function_type
+        self.function_type = FunctionType.FUNCTION
         self.declare(stmt.name)
         self.define(stmt.name)
-        self.resolve_function(stmt, FunctionType.FUNCTION)
-        return None
+        self.begin_scope()
+        # Check for duplicate parameters
+        seen_params = set()
+        for param in stmt.params:
+            if param.lexeme in seen_params:
+                self.error(param, "Already a variable with this name in this scope.")
+            seen_params.add(param.lexeme)
+            self.declare(param)
+            self.define(param)
+        self.resolve(stmt.body)
+        self.end_scope()
+        self.function_type = enclosing_function
 
     def visit_expression_stmt(self, stmt: 'Expression') -> None:
         # Resolver logic for expression statements
@@ -215,7 +230,9 @@ class Resolver(ExprVisitor, StmtVisitor):
     def visit_return_stmt(self, stmt: 'Return') -> None:
         if self.current_function == FunctionType.NONE:
             self.error(stmt.keyword, "Cannot return from top-level code.")
-        if stmt.value:
+        if stmt.value is not None:
+            if self.current_function == FunctionType.INITIALIZER:
+                PyLox.error(stmt.keyword, "Cannot return a value from an initializer.")
             self.resolve(stmt.value)
         return None
 
@@ -270,3 +287,11 @@ class Resolver(ExprVisitor, StmtVisitor):
         self.resolve_statements(function.body)
         self.end_scope()
         self.current_function = enclosing_function
+
+# Note: The actual visitor methods (visit_*) need to be implemented based on
+# the specific logic required for variable resolution in Lox.
+# The Java code provided was just a class definition stub.
+# Type hints like `-> None` are added assuming visitor methods don't return values,
+# similar to the `<Void>` generic in Java. Adjust if necessary.
+# Imports for specific Expr/Stmt subclasses (e.g., 'Variable', 'Assign', 'Block')
+# might be needed within the method type hints if using forward references isn't desired.
