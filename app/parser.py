@@ -1,7 +1,7 @@
 from typing import List
 from app.token import Token
 from app.token_type import TokenType
-from app.expr import Literal, Grouping, Unary, Binary, Comma, Variable, Assign, Logical, Call, Get, Set, This
+from app.expr import Literal, Grouping, Unary, Binary, Comma, Variable, Assign, Logical, Call, Get, Set, This, Super
 from app.stmt import Print, Expression, Var, Block, Class, If, While, Function, Return
 
 
