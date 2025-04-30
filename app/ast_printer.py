@@ -14,8 +14,12 @@ class AstPrinter:
         if isinstance(expr.value, bool):
             return "true" if expr.value else "false"
         if isinstance(expr.value, float):
-            # Match Java's String.format("%.1f", value) behavior
-            return f"{expr.value:.1f}"
+            # If the float is an integer (e.g. 34.0), format with one decimal place.
+            # Otherwise, use the full string representation (preserving extra decimals).
+            if expr.value.is_integer():
+                return f"{expr.value:.1f}"
+            else:
+                return str(expr.value)
         if isinstance(expr.value, str):
             # String literals without quotes in AST
             return expr.value
