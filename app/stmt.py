@@ -38,7 +38,7 @@ class Block(Stmt):
 class Class(Stmt):
     name: Token
     superclass: Expr
-    methods: list[Stmt.Function]
+    methods: list[Stmt]
 
     def accept(self, visitor):
         return visitor.visit_class_stmt(self)
