@@ -83,7 +83,7 @@ class PyLox:
         print(f"[line {line}] Error{where}: {message}", file=sys.stderr)
         self.had_error = True
 
-    def runtime_error(self, error) -> None:
+    def runtime_error(self, error):
         print(f"{error}\n[line {error.token.line}]", file=sys.stderr)
         self.had_runtime_error = True
 
