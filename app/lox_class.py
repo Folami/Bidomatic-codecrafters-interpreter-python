@@ -40,7 +40,7 @@ class LoxClass(LoxCallable):
         Args:
             name: The name of the method to find.
         Returns:
-            The method if found, None otherwise.
+            The method if found, otherwise None.
         """
         if name in self.methods:
             return self.methods[name]
