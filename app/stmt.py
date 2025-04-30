@@ -37,7 +37,7 @@ class Block(Stmt):
 @dataclass
 class Class(Stmt):
     name: Token
-    superclass: Expr.Variable
+    superclass: Variable
     methods: list[Stmt.Function]
 
     def accept(self, visitor):
@@ -53,8 +53,8 @@ class Expression(Stmt):
 @dataclass
 class Function(Stmt):
     name: Token
-    params: List[Token]
-    body: List[Stmt]
+    params: list[Token]
+    body: list[Stmt]
 
     def accept(self, visitor):
         return visitor.visit_function_stmt(self)
